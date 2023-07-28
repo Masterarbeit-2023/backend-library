@@ -31,5 +31,13 @@
 
     <build>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Masterarbeit-2023/library</url>
+        </repository>
+    </distributionManagement>
+
 
 </project>

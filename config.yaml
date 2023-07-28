@@ -1,0 +1,7 @@
+config:
+  database:
+    provider: on-premise
+    type: postgres
+  services:
+    provider: on-premise
+    infrastructure: docker

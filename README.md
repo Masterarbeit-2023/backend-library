@@ -1,3 +1,6 @@
 # library
 
-access_token=
+mvn clean install
+
+
+mvn clean deploy

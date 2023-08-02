@@ -1,0 +1,23 @@
+name: Build and Create Artifact
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  create-zip-artifact:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create Zip Archive
+        run: |
+          zip library.zip config.sh config.yaml generate-docker-compose.sh get_all_java_files.py python-config.sh read_files.py read_yaml.py requirements.txt
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: library
+          path: my-library.zip

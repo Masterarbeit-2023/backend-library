@@ -14,7 +14,7 @@ jobs:
 
       - name: Create Zip Archive
         run: |
-          zip library.zip helper
+          zip -r library.zip helper
 
       - name: Create artifact
         uses: actions/upload-artifact@v2

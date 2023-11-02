@@ -1,4 +1,4 @@
-package com.example.library;
+package com.example.library.test;
 
 public class Test {
     public boolean s = true;

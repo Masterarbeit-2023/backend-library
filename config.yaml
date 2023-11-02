@@ -1,0 +1,18 @@
+azure:
+  key: azureKey
+aws:
+  key: awsKey
+google:
+  key: googleKey
+on_premises:
+  ip: ip-address
+provider: AZURE
+infrastructure: SERVERLESS
+authentication: none
+functions:
+  function_1:
+      provider: AWS
+      authentication: none
+  function_2:
+    provider: AZURE
+    authentication: none

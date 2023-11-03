@@ -19,4 +19,15 @@ public class Configuration {
     Infrastructure infrastructure;
     String authentication;
     Map<String, Function> functions;
+
+    public Function getConfigurationForFunction(String functionName) {
+        Function function = null;
+        try {
+            function = functions.get(functionName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        function = new Function(provider, authentication);
+        return function;
+    }
 }

@@ -1,94 +1,83 @@
 package com.example.library.generator;
 
-import com.example.library.annotation.method.ApiFunction;
-import com.example.library.annotation.parameter.DatabaseTrigger;
-import com.example.library.annotation.parameter.HttpTrigger;
-import com.example.library.annotation.parameter.RabbitMqTrigger;
-import com.example.library.annotation.parameter.TimerTrigger;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClassScanner {
 
-    public static void componentScanning() {
+    public static List<ClassDefinition> componentScanning(Class annotation) {
         try {
-            List<Class<?>> classesWithAnnotation = ClassScanner.getClassesWithAnnotation("src/main/java/com.example.library.test", ApiFunction.class);
+            List<Class<?>> classesWithAnnotation = getClassesWithAnnotation2("src/main/java/com.example.library.test", annotation);
 
+            List<ClassDefinition> classDefinitions = new ArrayList<>();
             for (Class<?> clazz : classesWithAnnotation) {
-                System.out.println("Class with MyAnnotation: " + clazz.getName());
+                classDefinitions.add(getClassDefinitionOfClass(clazz));
+
             }
-        } catch (ClassNotFoundException | IOException e) {
+            return classDefinitions;
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        return new ArrayList<>();
     }
 
-    public static List<Class<?>> getClassesWithAnnotation(String packageName, Class<?> annotationClass)
-            throws ClassNotFoundException, IOException {
-        List<Class<?>> classesWithAnnotation = new ArrayList<>();
+    public static ClassDefinition getClassDefinitionOfClass(Class clazz) throws FileNotFoundException {
+        System.out.println("Class with MyAnnotation: " + clazz.getName());
+        String resourcePath = ("src/main/java/" + clazz.getName()).replace('.', '/') + ".java";
+        CompilationUnit compilationUnit = StaticJavaParser.parse(new File(resourcePath));
+        PackageDeclaration packageDeclaration = (PackageDeclaration) compilationUnit.getChildNodes().get(0);
+        List<Node> importDeclaration = (List<Node>) compilationUnit.getChildNodes().subList(1, compilationUnit.getChildNodes().size() - 1);
+        ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) compilationUnit.getChildNodes().get(compilationUnit.getChildNodes().size() - 1);
 
+        return new ClassDefinition(packageDeclaration, importDeclaration, classOrInterfaceDeclaration);
+    }
+
+    public static File[] getAllFilesInPackage(String packageName) {
         String path = packageName.replace('.', '/');
         File directory = new File(path);
         if (!directory.exists()) {
-            return classesWithAnnotation;
+            return new File[0];
         }
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".java")) {
-                    String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 5);
-                    Class<?> clazz = Class.forName(className.replace("/", ".").replace("src.main.java.", ""));
-                    CompilationUnit compilationUnit = StaticJavaParser.parse(file);
-                    try (BufferedReader br = new BufferedReader(new FileReader(file.getPath()))) {
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            if (line.contains(annotationClass.getName())) {
-                                classesWithAnnotation.add(clazz);
-                                Node node = compilationUnit.getChildNodes().get(3).getChildNodes().get(3).getChildNodes().get(4);
-                                for (Method m : clazz.getMethods()) {
-                                    if (m.getParameterAnnotations().length > 0 && m.getParameterAnnotations()[0].length > 0) {
-                                        if (m.getParameterAnnotations()[0].length > 1) {
-                                            throw new IllegalArgumentException("");
-                                        }
+        return directory.listFiles();
+    }
 
-                                        // Class annotationType = m.getParameterAnnotations()[0][0].annotationType();
-                                        Annotation annotation = m.getParameterAnnotations()[0][0];
-                                        Class annotationType = annotation.annotationType();
-                                        if (annotationType == HttpTrigger.class || annotationType == TimerTrigger.class || annotationType == DatabaseTrigger.class || annotationType == RabbitMqTrigger.class) {
-                                            if (annotationType == (HttpTrigger.class)) {
-                                                ProjectGenerator.createHttpTriggerProject(annotation, clazz);
-                                            } else if (annotationType == (TimerTrigger.class)) {
-                                            } else if (annotationType == (DatabaseTrigger.class)) {
-                                            } else if (annotationType == (RabbitMqTrigger.class)) {
-                                            }
-                                        }
-                                    }
-
-                                }
-                                break; // Stop searching once the string is found
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+    public static boolean containsAnnotation(File file, Class annotationClass) {
+        if (file.isFile() && file.getName().endsWith(".java")) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file.getPath()))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.contains(annotationClass.getName())) {
+                        return true;
                     }
-                } else if (file.isDirectory()) {
-                    // Recursively scan sub-packages
-                    String subPackageName = packageName + "." + file.getName();
-                    classesWithAnnotation.addAll(getClassesWithAnnotation(subPackageName, annotationClass));
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+        return false;
+    }
 
+    public static List<Class<?>> getClassesWithAnnotation2(String packageName, Class<?> annotationClass) throws ClassNotFoundException {
+        List<Class<?>> classesWithAnnotation = new ArrayList<>();
+        File[] files = getAllFilesInPackage(packageName);
+        if (files == null) {
+            return classesWithAnnotation;
+        }
+        for (File file : files) {
+            if (containsAnnotation(file, annotationClass)) {
+                String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 5);
+                Class<?> clazz = Class.forName(className.replace("/", ".").replace("src.main.java.", ""));
+                classesWithAnnotation.add(clazz);
+            }
+        }
         return classesWithAnnotation;
     }
 }

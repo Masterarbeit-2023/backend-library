@@ -8,9 +8,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface HttpTrigger {
+@Target(ElementType.PARAMETER)
+public @interface ApiPathVariable {
     HttpMethod httpMethod() default HttpMethod.GET;
+    KeyValue[] keyValueArray() default {};
     String authentication() default "";
+    String data() default "";
+    Class dataType() default Void.class;
+    Class returnType() default Void.class;
 }
 

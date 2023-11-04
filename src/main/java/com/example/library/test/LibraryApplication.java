@@ -1,6 +1,4 @@
 package com.example.library.test;
-import com.example.library.annotation.parameter.HttpTrigger;
-
 
 public class LibraryApplication {
 
@@ -8,7 +6,7 @@ public class LibraryApplication {
         test(new Object());
     }
 
-    public static void test(@HttpTrigger() Object object){
+    public static void test(Object object){
         System.out.println("Test test 123");
     }
 

@@ -80,4 +80,22 @@ public class ClassScanner {
         }
         return classesWithAnnotation;
     }
+
+    public static List<Class<?>> getAllClasses(String packageName) throws ClassNotFoundException {
+        List<Class<?>> allClasses = new ArrayList<>();
+        File[] files = getAllFilesInPackage(packageName);
+        if (files == null) {
+            return allClasses;
+        }
+        for (File file : files) {
+            if(file.isFile()){
+                String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 5);
+                Class<?> clazz = Class.forName(className.replace("/", ".").replace("src.main.java.", ""));
+                allClasses.add(clazz);
+            } else {
+                allClasses.addAll(getAllClasses(file.getPath()));
+            }
+        }
+        return allClasses;
+    }
 }

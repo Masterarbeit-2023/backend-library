@@ -7,7 +7,7 @@ google:
 on_premises:
   ip: ip-address
 provider: AZURE
-infrastructure: SERVERLESS
+infrastructure: TRADITIONAL
 authentication: none
 functions:
   function_1:

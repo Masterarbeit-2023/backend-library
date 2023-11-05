@@ -1,17 +1,21 @@
 package com.example.library.test;
 
+import com.example.library.TestRepository;
 import com.example.library.annotation.method.ApiFunction;
 import com.example.library.annotation.parameter.HttpTrigger;
 import com.example.library.util.HttpMethod;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 
 public class Test2 {
 
-    Test test;
+    @Autowired
+    TestRepository repository;
+
+    //Test test;
     @ApiFunction
     @HttpTrigger(httpMethod = HttpMethod.PUT)
-    @RequestMapping
     public void test(Object object){
         System.out.println("Test test 123");
         int i = 1+1;
@@ -22,7 +26,8 @@ public class Test2 {
 
     @ApiFunction
     @HttpTrigger
-    public void test2(Object object){
+    public ResponseEntity<String> test2(Object object){
         System.out.println("Test test 123");
+        return ResponseEntity.ok("Test");
     }
 }

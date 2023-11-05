@@ -6,7 +6,11 @@ import java.io.IOException;
 
 public class TemplateLoader {
 
-    public static String loadTemplate(String filePath) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(filePath)));
+    public static String loadTemplate(String filePath) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(filePath)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

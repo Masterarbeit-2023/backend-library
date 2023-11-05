@@ -8,6 +8,8 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import org.apache.maven.model.Model;
@@ -20,7 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Reader {
 
@@ -129,7 +133,18 @@ public class Reader {
             }
             while (counter < nodes.size() && nodes.get(counter) instanceof com.github.javaparser.ast.body.MethodDeclaration method) {
                 MethodDeclaration methodDeclaration = new MethodDeclaration();
-                methodDeclaration.setAnnotation(method.getAnnotations().stream().map(NodeWithName::getNameAsString).toList());
+                List<Annotation> methodAnnotations = new ArrayList<>();
+                for (Node node: method.getAnnotations()) {
+                    Map<String, String> map = new HashMap<>();
+                    if (node instanceof NormalAnnotationExpr normalAnnotationExpr) {
+                        for (MemberValuePair pair: normalAnnotationExpr.getPairs()) {
+                            map.put(pair.getNameAsString(), pair.getValue().toString());
+                        }
+                    }
+                    methodAnnotations.add(new Annotation(node.getChildNodes().get(0).toString(), map));
+                }
+
+                methodDeclaration.setAnnotation(methodAnnotations);
                 methodDeclaration.setName(method.getNameAsString());
                 methodDeclaration.setReturnType(method.getType().asString());
                 methodDeclaration.setParameters(

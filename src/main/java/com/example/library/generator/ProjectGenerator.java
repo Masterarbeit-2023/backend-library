@@ -4,6 +4,7 @@ import com.example.library.annotation.method.ApiFunction;
 import com.example.library.generator.config.Configuration;
 import com.example.library.generator.config.Function;
 import com.example.library.generator.config.Infrastructure;
+import com.example.library.generator.helper.Writer;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -79,13 +80,8 @@ public class ProjectGenerator {
             }
             fieldsString.append(variable.getTypeAsString()).append(" ").append(variable.getNameAsString()).append(";\n");
         }
-        String methodTemplate;
-        try {
-            methodTemplate = TemplateLoader.loadTemplate("src/main/java/com/example/library/generator/templates/traditional/HttpTemplate.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        String methodTemplate = TemplateLoader.loadTemplate("src/main/java/com/example/library/generator/templates/traditional/HttpTemplate.txt");
+
         StringBuilder methodsString = new StringBuilder();
         for (MethodDeclaration methodDeclaration : methods) {
 
@@ -140,10 +136,6 @@ public class ProjectGenerator {
         //generateProject("Test", "test", "com.example");
     }
 
-    public static void generateProject(String name) {
-        BashScriptExecutor.execute("src/main/java/com/example/library/generator/bash/generateProject.sh", "Test");
-    }
-
     public static void generateProject(String name, String artifactId, String groupId) {
         String path = Paths.get("").toAbsolutePath().getParent().toAbsolutePath().toString();
         File rootFolder = new File(path + "/Test/" + name);
@@ -176,22 +168,11 @@ public class ProjectGenerator {
 
     public static void generateTemplateAndSaveFile(String templatePath, Map<String, String> values, Path savePath) {
         String template;
-        try {
-            template = TemplateLoader.loadTemplate(templatePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+
+        template = TemplateLoader.loadTemplate(templatePath);
 
         String processedTemplate = TemplateProcessor.processTemplate(template, values);
 
-        System.out.println(processedTemplate);
-
-        // Optionally, write to a .java file
-        try {
-            Files.write(savePath, processedTemplate.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Writer.writeStringToJavaFile(processedTemplate, savePath);
     }
 }

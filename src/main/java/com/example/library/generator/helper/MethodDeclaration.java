@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class MethodDeclaration {
-    List<String> annotation;
+    List<Annotation> annotation;
     String name;
     String returnType;
     List<ParameterDeclaration> parameters;

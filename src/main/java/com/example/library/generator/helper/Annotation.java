@@ -3,13 +3,11 @@ package com.example.library.generator.helper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class FieldDeclaration {
-
+public class Annotation {
     String name;
-    List<String> annotations;
-    String type;
+    Map<String, String> values;
 }

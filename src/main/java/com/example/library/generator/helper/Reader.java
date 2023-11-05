@@ -157,6 +157,7 @@ public class Reader {
                                         )
                         ).toList()
                 );
+                methodDeclaration.setBody(method.getBody().get());
                 methods.add(methodDeclaration);
                 counter++;
             }

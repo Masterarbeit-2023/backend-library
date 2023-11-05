@@ -1,5 +1,6 @@
 package com.example.library.generator.helper;
 
+import com.github.javaparser.ast.stmt.BlockStmt;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +11,6 @@ public class MethodDeclaration {
     String name;
     String returnType;
     List<ParameterDeclaration> parameters;
-    BodyDeclaration body;
+    BlockStmt body;
     ClassDeclaration references;
 }

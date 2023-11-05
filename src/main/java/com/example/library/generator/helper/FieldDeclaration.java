@@ -1,11 +1,13 @@
 package com.example.library.generator.helper;
 
-import java.lang.annotation.Annotation;
+import lombok.AllArgsConstructor;
 
+import java.util.List;
+
+@AllArgsConstructor
 public class FieldDeclaration {
 
-    String visibility;
     String name;
-    Annotation annotation;
-    Class type;
+    List<String> annotation;
+    String type;
 }

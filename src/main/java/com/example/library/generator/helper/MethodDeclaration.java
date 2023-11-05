@@ -1,12 +1,15 @@
 package com.example.library.generator.helper;
 
-import java.lang.annotation.Annotation;
+import lombok.Data;
 
+import java.util.List;
+
+@Data
 public class MethodDeclaration {
-    Annotation annotation;
+    List<String> annotation;
     String name;
-    Class returnType;
-    ParameterDeclaration[] parameters;
+    String returnType;
+    List<ParameterDeclaration> parameters;
     BodyDeclaration body;
-    ClassDefinition references;
+    ClassDeclaration references;
 }

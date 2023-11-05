@@ -1,9 +1,12 @@
 package com.example.library.generator.helper;
 
-import java.lang.annotation.Annotation;
+import lombok.AllArgsConstructor;
 
+import java.util.List;
+
+@AllArgsConstructor
 public class ParameterDeclaration {
-    Annotation annotation;
-    Class type;
+    List<String> annotation;
+    String type;
     String name;
 }

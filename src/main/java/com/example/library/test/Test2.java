@@ -1,17 +1,12 @@
 package com.example.library.test;
 
-import com.example.library.TestRepository;
 import com.example.library.annotation.method.ApiFunction;
 import com.example.library.annotation.parameter.HttpTrigger;
 import com.example.library.util.HttpMethod;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 
 public class Test2 {
-
-    @Autowired
-    TestRepository repository;
 
     //Test test;
     @ApiFunction

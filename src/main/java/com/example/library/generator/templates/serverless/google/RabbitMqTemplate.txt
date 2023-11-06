@@ -1,0 +1,23 @@
+package com.example;
+
+import com.google.cloud.functions.BackgroundFunction;
+import com.google.cloud.functions.Context;
+{{IMPORTS}}
+
+public class {{CLASS_NAME}} implements BackgroundFunction<PubSubMessage> {
+
+    {{FIELDS}}
+
+    {{METHODS}}
+
+    @Override
+      public void accept(PubSubMessage message, Context context) {
+        {{BODY}}
+      }
+
+      public static class PubSubMessage {
+        String data;
+        String messageId;
+        String publishTime;
+      }
+}

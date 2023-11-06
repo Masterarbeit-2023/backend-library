@@ -2,7 +2,6 @@ package com.example.library.generator.helper;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -10,7 +9,6 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
-import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -52,7 +50,7 @@ public class Reader {
 
         // Read all ClassDefinitions of Classes
         List<ClassDeclaration> classDefinitions = classes.stream().map(Reader::readClassDefinitionOfClass).toList();
-        project.setClassDefintionList(classDefinitions);
+        project.setClassDeclarations(classDefinitions);
 
         return project;
     }
@@ -144,7 +142,7 @@ public class Reader {
                     methodAnnotations.add(new Annotation(node.getChildNodes().get(0).toString(), map));
                 }
 
-                methodDeclaration.setAnnotation(methodAnnotations);
+                methodDeclaration.setAnnotations(methodAnnotations);
                 methodDeclaration.setName(method.getNameAsString());
                 methodDeclaration.setReturnType(method.getType().asString());
                 methodDeclaration.setParameters(

@@ -9,7 +9,6 @@ import static com.example.library.generator.YamlReader.readYaml;
 public class Testing {
 
     public static Configuration configuration;
-    public static ProjectDeclaration project;
 
     public static void main(String[] args) {
         test("", new Exception().getStackTrace()[0].getClassName());
@@ -17,7 +16,8 @@ public class Testing {
     public static void test(String projectRoot, String classToIgnored) {
         configuration = readYaml("config.yaml");
         System.out.println(configuration);
-        project = Reader.readProject(projectRoot, classToIgnored);
+        ProjectDeclaration project = Reader.readProject(projectRoot, classToIgnored);
+        Generator.generateProjectDeclarationWithProjectConfig(project, configuration);
         System.out.println(project);
     }
 }

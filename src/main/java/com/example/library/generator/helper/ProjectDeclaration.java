@@ -8,8 +8,12 @@ import java.util.List;
 
 @Data
 public class ProjectDeclaration {
-    List<ClassDeclaration> classDefintionList = new ArrayList<>();
+    List<ClassDeclaration> classDeclarations = new ArrayList<>();
     Model pom;
 
+
+    public void addClassDeclaration(ClassDeclaration classDeclaration) {
+        classDeclarations.add(classDeclaration);
+    }
 
 }

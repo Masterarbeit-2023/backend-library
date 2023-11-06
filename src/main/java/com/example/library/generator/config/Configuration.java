@@ -26,8 +26,9 @@ public class Configuration {
             function = functions.get(functionName);
         } catch (Exception e) {
             e.printStackTrace();
+            function = new Function(provider, authentication);
         }
-        function = new Function(provider, authentication);
+
         return function;
     }
 }

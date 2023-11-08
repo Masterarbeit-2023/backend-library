@@ -1,4 +1,4 @@
-package com.example.library.annotation.parameter;
+package com.example.library.annotation.method;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface DatabaseTrigger {
-    String query() default "";
+@Target(ElementType.METHOD)
+public @interface TimerTrigger {
+    String cron() default "";
+    int rate() default 0;
 }

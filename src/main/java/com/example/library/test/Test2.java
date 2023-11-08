@@ -1,7 +1,7 @@
 package com.example.library.test;
 
 import com.example.library.annotation.method.ApiFunction;
-import com.example.library.annotation.parameter.HttpTrigger;
+import com.example.library.annotation.method.HttpTrigger;
 import com.example.library.util.HttpMethod;
 import org.springframework.http.ResponseEntity;
 

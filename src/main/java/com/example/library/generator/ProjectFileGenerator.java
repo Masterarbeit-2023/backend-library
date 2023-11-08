@@ -1,7 +1,7 @@
 package com.example.library.generator;
 
+import com.example.library.Main;
 import com.example.library.generator.config.Configuration;
-import com.example.library.generator.config.Function;
 import com.example.library.generator.helper.*;
 import org.antlr.v4.runtime.misc.Pair;
 
@@ -16,7 +16,7 @@ public class ProjectFileGenerator {
         for (ProjectDeclaration project : projects) {
             Pair<String, String> pairs = Writer.generateProjectFolders(project.getName());
             for (ClassDeclaration clazz : project.getClassDeclarations()) {
-                Pair<RequestType, Annotation> pair = Testing.project.getRequestTypeAndAnnotationByMethodName(clazz.getName());
+                Pair<RequestType, Annotation> pair = Main.project.getRequestTypeAndAnnotationByMethodName(clazz.getName());
                 Map<String, String> map = new HashMap<>();
                 map.put("IMPORTS", "");
                 map.put("CLASS_NAME", clazz.getName());

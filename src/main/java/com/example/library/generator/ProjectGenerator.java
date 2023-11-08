@@ -1,5 +1,6 @@
 package com.example.library.generator;
 
+import com.example.library.Main;
 import com.example.library.generator.config.Configuration;
 import com.example.library.generator.config.Infrastructure;
 import com.example.library.generator.config.ProviderEnum;
@@ -126,8 +127,8 @@ public class ProjectGenerator {
     }
 
     public static void generateProjectDeclarationWithFunctionConfig(ProjectDeclaration projectDeclaration) {
-        Infrastructure infrastructure = Testing.configuration.getInfrastructure();
-        ProviderEnum provider = Testing.configuration.getProvider();
+        Infrastructure infrastructure = Main.configuration.getInfrastructure();
+        ProviderEnum provider = Main.configuration.getProvider();
 
 
     }

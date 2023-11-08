@@ -2,7 +2,7 @@ name: Build and Create Artifact
 on:
   push:
     branches:
-      - master
+      #- master
 
 jobs:
   create-zip-artifact:

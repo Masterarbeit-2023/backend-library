@@ -1,4 +1,4 @@
-package com.example.library.annotation.parameter;
+package com.example.library.annotation.method;
 
 import com.example.library.util.HttpMethod;
 

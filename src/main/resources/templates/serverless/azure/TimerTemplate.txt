@@ -1,0 +1,21 @@
+package com.example;
+
+import java.util.*;
+import com.microsoft.azure.functions.annotation.*;
+import com.microsoft.azure.functions.*;
+{{IMPORTS}}
+
+public class {{CLASS_NAME}} {
+
+    {{FIELDS}}
+
+    {{METHODS}}
+
+    @FunctionName("{{NAME}}")
+    public void {{NAME}}(
+      @TimerTrigger(name = "{{NAME}}", schedule = {{SCHEDULE}}) String timerInfo,
+          ExecutionContext context
+     ) {
+         {{BODY}}
+    }
+}

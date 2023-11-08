@@ -1,0 +1,22 @@
+package com.example;
+
+import java.util.*;
+import com.microsoft.azure.functions.annotation.*;
+import com.microsoft.azure.functions.*;
+{{IMPORTS}}
+
+public class {{CLASS_NAME}} {
+
+    {{FIELDS}}
+
+    {{METHODS}}
+
+    @FunctionName("{{NAME}}")
+    public void {{NAME}}(
+        @RabbitMQTrigger(connectionStringSetting = "{{CONNECTION_STRING_SETTING}}", queueName = "{{QUEUE}}") String input,
+        final ExecutionContext context)
+    {
+        {{BODY}}
+    }
+
+}

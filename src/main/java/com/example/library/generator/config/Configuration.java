@@ -15,6 +15,7 @@ public class Configuration {
     Provider google;
 
     OnPremise on_premises;
+    String project_config;
     ProviderEnum provider;
     Infrastructure infrastructure;
     String authentication;
@@ -30,5 +31,9 @@ public class Configuration {
         }
 
         return function;
+    }
+
+    public boolean isProjectConfig() {
+        return project_config.equals("yes");
     }
 }

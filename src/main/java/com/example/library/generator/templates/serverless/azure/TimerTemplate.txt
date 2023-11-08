@@ -11,7 +11,7 @@ public class {{CLASS_NAME}} {
 
     {{METHODS}}
 
-    @FunctionName({{NAME}})
+    @FunctionName("{{NAME}}")
     public void {{NAME}}(
       @TimerTrigger(name = "{{NAME}}", schedule = {{SCHEDULE}}) String timerInfo,
           ExecutionContext context

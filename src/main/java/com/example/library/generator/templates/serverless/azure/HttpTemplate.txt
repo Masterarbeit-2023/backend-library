@@ -11,7 +11,7 @@ public class {{CLASS_NAME}} {
 
     {{METHODS}}
 
-    @FunctionName({{NAME}})
+    @FunctionName("{{NAME}}")
     public HttpResponseMessage {{NAME}}(
             @HttpTrigger(name = "req",
                 methods = {{{HTTP_METHOD}}},

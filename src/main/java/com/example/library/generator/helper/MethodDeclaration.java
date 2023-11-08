@@ -2,6 +2,7 @@ package com.example.library.generator.helper;
 
 import com.github.javaparser.ast.stmt.BlockStmt;
 import lombok.Data;
+import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.List;
 
@@ -23,5 +24,15 @@ public class MethodDeclaration {
 
     public boolean containsAnnotationApiFunction() {
         return containsAnnotation("ApiFunction");
+    }
+
+    public Pair<RequestType, Annotation> getRequestTypeAndAnnotation() {
+        for (Annotation annotation : annotations){
+            RequestType requestType = annotation.getReturnType();
+            if (requestType != null) {
+                return new Pair<>(requestType, annotation);
+            }
+        }
+        return null;
     }
 }

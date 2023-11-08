@@ -3,7 +3,6 @@ package com.example.library.generator;
 import com.example.library.Main;
 import com.example.library.generator.config.Configuration;
 import com.example.library.generator.helper.*;
-import org.antlr.v4.runtime.misc.Pair;
 
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -23,8 +22,8 @@ public class ProjectFileGenerator {
                 map.put("FIELDS", "");
                 map.put("METHODS", "");
                 map.put("NAME", clazz.getName());
-                String httpMethod = pair.b.getValues().get("httpMethod") ;
-                if (pair.b.getValues().get("httpMethod") != null){
+                String httpMethod = pair.getSecond().getValues().get("httpMethod") ;
+                if (pair.getSecond().getValues().get("httpMethod") != null){
                     map.put("HTTP_METHOD", httpMethod.replace("HhttpMethod.", "").toLowerCase());
                 } else {
                     map.put("HTTP_METHOD", "");
@@ -35,9 +34,9 @@ public class ProjectFileGenerator {
                 map.put("BODY", clazz.getMethods().get(0).getBody().toString());
                 Writer.generateServerlessTemplateAndSaveFile(
                         configuration.getProvider(),
-                        pair.a,
+                        pair.getFirst(),
                         map,
-                        Paths.get(pairs.b+ "/" + project.getName() + ".java")
+                        Paths.get(pairs.getSecond()+ "/" + project.getName() + ".java")
                 );
             }
         }

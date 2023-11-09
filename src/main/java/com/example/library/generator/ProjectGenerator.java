@@ -4,49 +4,17 @@ import com.example.library.Main;
 import com.example.library.generator.config.Configuration;
 import com.example.library.generator.config.Infrastructure;
 import com.example.library.generator.config.ProviderEnum;
-import com.example.library.generator.helper.*;
+import com.example.library.generator.helper.Annotation;
+import com.example.library.generator.helper.ClassDeclaration;
+import com.example.library.generator.helper.MethodDeclaration;
+import com.example.library.generator.helper.ProjectDeclaration;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ProjectGenerator {
-
-    public static void generateTemplateAndSaveFile(String templatePath, Map<String, String> values, Path savePath) {
-        String template;
-
-        template = TemplateLoader.loadTemplate(templatePath);
-
-        String processedTemplate = TemplateProcessor.processTemplate(template, values);
-
-        Writer.writeStringToJavaFile(processedTemplate, savePath);
-    }
-
-    private static String generateFieldString(FieldDeclaration field) {
-        StringBuilder builder = new StringBuilder();
-        for (String annotation : field.getAnnotations()) {
-            builder.append("@").append(annotation).append("\n");
-        }
-        builder.append(field.getType()).append(" ").append(field.getName()).append(";");
-        return builder.toString();
-    }
-
-
-    private static String generateMethodStringWithProjectConfig(MethodDeclaration method) {
-        Map<String, String> values = new HashMap<>();
-
-
-        return "";
-    }
-
-    private static String generateMethodStringWithFunctionConfig(MethodDeclaration method) {
-        Map<String, String> values = new HashMap<>();
-
-
-        return "";
-    }
 
     public static List<ProjectDeclaration> generateProjectDeclarationWithProjectConfig(ProjectDeclaration projectDeclaration, Configuration configuration) {
         Infrastructure infrastructure = configuration.getInfrastructure();
@@ -131,5 +99,9 @@ public class ProjectGenerator {
         ProviderEnum provider = Main.configuration.getProvider();
 
 
+    }
+
+    public static List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project, Configuration configuration) {
+        return null;
     }
 }

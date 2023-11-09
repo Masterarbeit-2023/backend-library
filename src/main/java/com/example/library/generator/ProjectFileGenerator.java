@@ -42,4 +42,7 @@ public class ProjectFileGenerator {
         }
     }
 
+    public static void generateProject(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
+
+    }
 }

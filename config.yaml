@@ -6,6 +6,7 @@ google:
   key: googleKey
 on_premises:
   ip: ip-address
+project_config: yes
 provider: AZURE
 infrastructure: TRADITIONAL
 authentication: none

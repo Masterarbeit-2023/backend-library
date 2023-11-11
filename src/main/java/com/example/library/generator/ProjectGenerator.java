@@ -8,6 +8,8 @@ import com.example.library.generator.helper.Annotation;
 import com.example.library.generator.helper.ClassDeclaration;
 import com.example.library.generator.helper.MethodDeclaration;
 import com.example.library.generator.helper.ProjectDeclaration;
+import com.example.library.util.StringUtil;
+import org.apache.maven.model.Model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,6 +104,66 @@ public class ProjectGenerator {
     }
 
     public static List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project, Configuration configuration) {
-        return null;
+        List<ProjectDeclaration> generatedProjects = new ArrayList<>();
+        for (ClassDeclaration clazz : project.getClassDeclarations()) {
+            for (MethodDeclaration method : clazz.getMethods()) {
+                if (method.containsAnnotationApiFunction()){
+                    process(generatedProjects, method, configuration);
+                }
+            }
+        }
+        return generatedProjects;
+    }
+
+    public static void process(List<ProjectDeclaration> projectDeclarations, MethodDeclaration method, Configuration configuration){
+        switch (configuration.getInfrastructure()) {
+            case SERVERLESS -> {
+                System.out.println("SERVERLESS");
+                ProjectDeclaration newProject = new ProjectDeclaration();
+                newProject.setName(method.getName());
+
+                ClassDeclaration newClass = new ClassDeclaration();
+
+                newClass.setName(StringUtil.capitalize(method.getName()));
+                newClass.setPackageDeclaration("com.example");
+                newClass.setImports(method.getClazz().getImports());
+                newClass.setFields(method.getClazz().getFields());
+
+                MethodDeclaration newMethod = new MethodDeclaration();
+                newMethod.setName(method.getName());
+                newMethod.setBody(method.getBody());
+                newMethod.setReturnType(method.getReturnType());
+                newMethod.setAnnotations(processServerlessAnnotations(method.getName(), configuration.getProvider()));
+                newMethod.setParameters(method.getParameters());
+
+                newClass.addMethod(newMethod);
+                newProject.addClassDeclaration(newClass);
+                Model newPom = method.getClazz().getProject().getPom();
+                newPom.setName(method.getName());
+                newPom.setArtifactId(method.getName());
+                newProject.setPom(newPom);
+
+                projectDeclarations.add(newProject);
+            }
+            case MICROSERVICES -> {
+                System.out.println("MICROSERVICES");
+                ProjectDeclaration newProject = new ProjectDeclaration();
+
+
+                projectDeclarations.add(newProject);
+            }
+            case TRADITIONAL -> {
+                System.out.println("TRADITIONAL");
+                ProjectDeclaration newProject;
+                if (projectDeclarations.isEmpty()){
+                    newProject = new ProjectDeclaration();
+                } else {
+                    newProject = projectDeclarations.get(0);
+                }
+
+                projectDeclarations.clear();
+                projectDeclarations.add(newProject);
+            }
+        }
     }
 }

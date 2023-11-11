@@ -19,6 +19,7 @@ public class ClassDeclaration {
     List<String> extendedTypes;
     List<FieldDeclaration> fields;
     List<MethodDeclaration> methods = new ArrayList<>();
+    ProjectDeclaration project;
 
     public boolean containsAnnotation(String annotationName) {
         for (MethodDeclaration method:methods) {

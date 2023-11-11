@@ -1,5 +1,6 @@
 package com.example.library.generator.helper;
 
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class MethodDeclaration {
     String returnType;
     List<ParameterDeclaration> parameters;
     BlockStmt body;
-    ClassDeclaration references;
+    ClassDeclaration clazz;
 
     public boolean containsAnnotation(String annotationName) {
         if (getAnnotations().stream().filter(annotation -> annotation.getName().equals(annotationName)).count() > 0) {
@@ -33,5 +34,14 @@ public class MethodDeclaration {
             }
         }
         return null;
+    }
+
+    public boolean bodyContainsString(String value) {
+        for (Node node : body.getStatements()) {
+            if (node.toString().contains(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1,25 +1,28 @@
 package com.example.library.generator;
 
 import com.example.library.generator.config.*;
+import com.example.library.generator.helper.ClassDeclaration;
+import com.example.library.generator.helper.ProjectDeclaration;
+import org.apache.maven.model.Model;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.example.library.generator.YamlReader.readYaml;
 import static org.junit.jupiter.api.Assertions.*;
 
-class YamlReaderTest {
+class ProjectGeneratorTest {
 
     @Test
-    void readYamlTest() {
+    void generateProjectDeclarationTest() {
         Map<String, Function> map = new HashMap<>();
         Function function1 = new Function(ProviderEnum.AWS, "none");
         Function function2 = new Function(ProviderEnum.AZURE, "none");
         map.put("function_1", function1);
         map.put("function_2", function2);
-
-        Configuration expectedConfiguration = new Configuration(
+        Configuration configuration = new Configuration(
                 new Provider("azureKey"),
                 new Provider("awsKey"),
                 new Provider("googleKey"),
@@ -32,9 +35,17 @@ class YamlReaderTest {
                 "none",
                 map
         );
-        Configuration actualConfiguration = readYaml("config.yaml");
 
-        assertNotEquals(null, actualConfiguration);
-        assertEquals(actualConfiguration, expectedConfiguration);
+        List<ClassDeclaration> classDeclarations = new ArrayList<>();
+        classDeclarations.add(new ClassDeclaration(
+        ));
+
+        ProjectDeclaration project = new ProjectDeclaration(
+                "Test",
+                classDeclarations,
+                new Model()
+        );
+
+        assertEquals( new ArrayList<>(), ProjectGenerator.generateProjectDeclaration(project, configuration));
     }
 }

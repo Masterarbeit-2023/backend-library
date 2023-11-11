@@ -13,8 +13,11 @@ public class Configuration {
     Provider azure;
     Provider aws;
     Provider google;
-
     OnPremise on_premises;
+
+    ProviderEnum email_provider;
+    ProviderEnum authentication_provider;
+
     String project_config;
     ProviderEnum provider;
     Infrastructure infrastructure;
@@ -51,6 +54,12 @@ public class Configuration {
                 return false;
             }
             if (!this.on_premises.toString().equals(config.on_premises.toString())){
+                return false;
+            }
+            if (!this.email_provider.toString().equals(config.email_provider.toString())){
+                return false;
+            }
+            if (!this.authentication_provider.toString().equals(config.authentication_provider.toString())){
                 return false;
             }
             if (!this.project_config.equals(config.project_config)){

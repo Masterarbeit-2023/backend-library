@@ -1,12 +1,16 @@
 package com.example.library.generator.helper;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.maven.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectDeclaration {
     String name;
     List<ClassDeclaration> classDeclarations = new ArrayList<>();

@@ -49,7 +49,7 @@ public class Reader {
         List<Class<?>> classes = readAllClasses("src", classToIgnored);
 
         // Read all ClassDefinitions of Classes
-        List<ClassDeclaration> classDefinitions = classes.stream().map(Reader::readClassDefinitionOfClass).toList();
+        List<ClassDeclaration> classDefinitions = classes.stream().map(clazz -> readClassDefinitionOfClass(clazz, project)).toList();
         project.setClassDeclarations(classDefinitions);
 
         return project;
@@ -92,10 +92,11 @@ public class Reader {
         return directory.listFiles();
     }
 
-    public static ClassDeclaration readClassDefinitionOfClass(Class clazz) {
+    public static ClassDeclaration readClassDefinitionOfClass(Class clazz, ProjectDeclaration project) {
         String resourcePath = ("src/main/java/" + clazz.getName()).replace('.', '/') + ".java";
         CompilationUnit compilationUnit = null;
         try {
+            ClassDeclaration classDeclaration = new ClassDeclaration();
             compilationUnit = StaticJavaParser.parse(new File(resourcePath));
             String packageDeclaration = ((PackageDeclaration) compilationUnit.getChildNodes().get(0)).getNameAsString();
             List<ImportDeclaration> importDeclarations = new ArrayList<>();
@@ -156,17 +157,19 @@ public class Reader {
                         ).toList()
                 );
                 methodDeclaration.setBody(method.getBody().get());
+                methodDeclaration.setClazz(classDeclaration);
                 methods.add(methodDeclaration);
                 counter++;
             }
-            return new ClassDeclaration(
-                    packageDeclaration,
-                    importDeclarations,
-                    annotations,
-                    name,
-                    extendedTypes,
-                    fields,
-                    methods);
+            classDeclaration.setPackageDeclaration(packageDeclaration);
+            classDeclaration.setImports(importDeclarations);
+            classDeclaration.setAnnotations(annotations);
+            classDeclaration.setName(name);
+            classDeclaration.setExtendedTypes(extendedTypes);
+            classDeclaration.setFields(fields);
+            classDeclaration.setMethods(methods);
+            classDeclaration.setProject(project);
+            return classDeclaration;
             //return new ClassDeclaration(packageDeclaration, importDeclaration, classOrInterfaceDeclaration);
         } catch (FileNotFoundException e) {
             return null;

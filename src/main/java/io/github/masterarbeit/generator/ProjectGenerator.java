@@ -6,7 +6,7 @@ import io.github.masterarbeit.generator.config.Infrastructure;
 import io.github.masterarbeit.generator.config.ProviderEnum;
 import io.github.masterarbeit.generator.helper.Annotation;
 import io.github.masterarbeit.generator.helper.ClassDeclaration;
-import io.github.masterarbeit.generator.helper.MethodDeclaration;
+import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 import io.github.masterarbeit.util.StringUtil;
 import org.apache.maven.model.Model;

@@ -1,7 +1,8 @@
-package io.github.masterarbeit.generator.helper;
+package io.github.masterarbeit.generator.helper.method;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import io.github.masterarbeit.generator.helper.*;
 import lombok.Data;
 
 import java.util.List;

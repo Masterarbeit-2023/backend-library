@@ -1,5 +1,6 @@
 package io.github.masterarbeit.generator.helper;
 
+import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

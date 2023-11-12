@@ -109,6 +109,8 @@ public class ProjectGenerator {
             for (MethodDeclaration method : clazz.getMethods()) {
                 if (method.containsAnnotationApiFunction()){
                     process(generatedProjects, method, configuration);
+                } else {
+
                 }
             }
         }
@@ -148,6 +150,9 @@ public class ProjectGenerator {
             case MICROSERVICES -> {
                 System.out.println("MICROSERVICES");
                 ProjectDeclaration newProject = new ProjectDeclaration();
+                newProject.setName(method.getName());
+
+                ClassDeclaration newClass = new ClassDeclaration();
 
 
                 projectDeclarations.add(newProject);

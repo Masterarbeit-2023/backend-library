@@ -14,7 +14,7 @@ import java.util.List;
 public class ClassDeclaration {
 
     String packageDeclaration;
-    List<ImportDeclaration> imports;
+    List<String> imports;
     List<String> annotations;
     String name;
     List<String> extendedTypes;

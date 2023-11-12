@@ -45,6 +45,7 @@ public class Reader {
         // Read Pom.xml
         Model model = readPomXml("pom.xml");
         project.setPom(model);
+        project.setName(model.getName());
 
         // Read all existing classes
         List<Class<?>> classes = readAllClasses("src", classToIgnored);
@@ -100,10 +101,10 @@ public class Reader {
             ClassDeclaration classDeclaration = new ClassDeclaration();
             compilationUnit = StaticJavaParser.parse(new File(resourcePath));
             String packageDeclaration = ((PackageDeclaration) compilationUnit.getChildNodes().get(0)).getNameAsString();
-            List<ImportDeclaration> importDeclarations = new ArrayList<>();
+            List<String> importDeclarations = new ArrayList<>();
             List<Node> importDeclaration = (List<Node>) compilationUnit.getChildNodes().subList(1, compilationUnit.getChildNodes().size() - 1);
             for (Node imp : importDeclaration) {
-                importDeclarations.add(new ImportDeclaration(((com.github.javaparser.ast.ImportDeclaration) imp).getNameAsString(), null));
+                importDeclarations.add(((com.github.javaparser.ast.ImportDeclaration) imp).getNameAsString());
             }
             ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) compilationUnit.getChildNodes().get(compilationUnit.getChildNodes().size() - 1);
 

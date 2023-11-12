@@ -8,7 +8,7 @@
         <version>3.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>io.github.masterarbeit-2023</groupId>
+    <groupId>io.github.masterarbeit</groupId>
     <artifactId>library</artifactId>
     <version>0.0.2</version>
     <name>library</name>

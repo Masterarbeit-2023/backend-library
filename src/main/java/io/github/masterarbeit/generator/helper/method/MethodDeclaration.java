@@ -6,6 +6,7 @@ import io.github.masterarbeit.generator.helper.*;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 public class MethodDeclaration {
@@ -23,12 +24,18 @@ public class MethodDeclaration {
         return false;
     }
 
+    public Annotation getAnnotation(String annotationName) {
+        Optional<Annotation> optionalAnnotation = getAnnotations().stream().filter(annotation -> annotation.getName().equals(annotationName)).findFirst();
+        return optionalAnnotation.orElse(null);
+    }
+
+
     public boolean containsAnnotationApiFunction() {
         return containsAnnotation("ApiFunction");
     }
 
     public Pair<RequestType, Annotation> getRequestTypeAndAnnotation() {
-        for (Annotation annotation : annotations){
+        for (Annotation annotation : annotations) {
             RequestType requestType = annotation.getReturnType();
             if (requestType != null) {
                 return new Pair<>(requestType, annotation);

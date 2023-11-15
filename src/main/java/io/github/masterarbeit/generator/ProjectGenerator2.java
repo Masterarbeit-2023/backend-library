@@ -1,10 +1,5 @@
 package io.github.masterarbeit.generator;
 
-import io.github.masterarbeit.annotation.method.ApiFunction;
-import io.github.masterarbeit.generator.config.Configuration;
-import io.github.masterarbeit.generator.config.Function;
-import io.github.masterarbeit.generator.config.Infrastructure;
-import io.github.masterarbeit.generator.helper.Writer;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -12,7 +7,15 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.SimpleName;
+import io.github.masterarbeit.annotation.method.ApiFunction;
+import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.config.Function;
+import io.github.masterarbeit.generator.config.Infrastructure;
+import io.github.masterarbeit.generator.helper.Writer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -69,7 +72,7 @@ public class ProjectGenerator2 {
         StringBuilder fieldsString = new StringBuilder();
         for (FieldDeclaration fieldDeclaration : fields) {
             VariableDeclarator variable = fieldDeclaration.getVariables().get(0);
-            for (Node annotationExpr: fieldDeclaration.getAnnotations()) {
+            for (Node annotationExpr : fieldDeclaration.getAnnotations()) {
                 MarkerAnnotationExpr annotation = (MarkerAnnotationExpr) annotationExpr;
                 fieldsString.append("@" + annotation.getNameAsString() + "\n");
             }
@@ -126,7 +129,7 @@ public class ProjectGenerator2 {
         generateTemplateAndSaveFile(
                 "src/main/java/com/example/library/generator/templates/traditional/ClassTemplate.txt",
                 valuesMap,
-                Paths.get(srcFolderPath+ "/" + name + ".java")
+                Paths.get(srcFolderPath + "/" + name + ".java")
         );
         //generateProject("Test", "test", "com.example");
     }

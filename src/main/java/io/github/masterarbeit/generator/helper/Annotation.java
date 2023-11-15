@@ -13,16 +13,16 @@ public class Annotation {
 
     public RequestType getReturnType() {
         switch (name) {
-            case "HttpTrigger"-> {
+            case "HttpTrigger" -> {
                 return RequestType.Http;
             }
-            case "DatabaseTrigger"->{
+            case "DatabaseTrigger" -> {
                 return RequestType.Database;
             }
-            case "TimerTrigger"-> {
+            case "TimerTrigger" -> {
                 return RequestType.Timer;
             }
-            case "RabbitMqTrigger"->{
+            case "RabbitMqTrigger" -> {
                 return RequestType.RabbitMq;
             }
             default -> {

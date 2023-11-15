@@ -34,6 +34,7 @@ public class Writer {
     public static Pair<String, String> generateProjectFolders(String name) {
         return generateProjectFolders(name, "com.example");
     }
+
     public static boolean writePomXml(String path, Model model) {
         MavenXpp3Writer writer = new MavenXpp3Writer();
         try {

@@ -4,7 +4,7 @@ import io.github.masterarbeit.util.HttpMethod;
 
 import java.util.Map;
 
-public class FunctionCaller<T> implements IFunctionCaller<T>{
+public class FunctionCaller<T> implements IFunctionCaller<T> {
 
 
     @Override

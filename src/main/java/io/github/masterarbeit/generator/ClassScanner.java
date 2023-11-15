@@ -88,7 +88,7 @@ public class ClassScanner {
             return allClasses;
         }
         for (File file : files) {
-            if(file.isFile()){
+            if (file.isFile()) {
                 String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 5);
                 Class<?> clazz = Class.forName(className.replace("/", ".").replace("src.main.java.", ""));
                 allClasses.add(clazz);

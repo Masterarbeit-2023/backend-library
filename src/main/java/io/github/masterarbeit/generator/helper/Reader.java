@@ -115,7 +115,7 @@ public class Reader {
             List<String> extendedTypes = new ArrayList<>();
             List<FieldDeclaration> fields = new ArrayList<>();
             List<MethodDeclaration> methods = new ArrayList<>();
-            extendedTypes = classOrInterfaceDeclaration.getExtendedTypes().stream().map(value->value.asString()).toList();
+            extendedTypes = classOrInterfaceDeclaration.getExtendedTypes().stream().map(value -> value.asString()).toList();
             int counter = 0;
             while (counter < nodes.size() && nodes.get(counter) instanceof MarkerAnnotationExpr) {
                 annotations.add(((MarkerAnnotationExpr) nodes.get(counter)).getNameAsString());
@@ -135,10 +135,10 @@ public class Reader {
             while (counter < nodes.size() && nodes.get(counter) instanceof com.github.javaparser.ast.body.MethodDeclaration method) {
                 MethodDeclaration methodDeclaration = new MethodDeclaration();
                 List<Annotation> methodAnnotations = new ArrayList<>();
-                for (Node node: method.getAnnotations()) {
+                for (Node node : method.getAnnotations()) {
                     Map<String, String> map = new HashMap<>();
                     if (node instanceof NormalAnnotationExpr normalAnnotationExpr) {
-                        for (MemberValuePair pair: normalAnnotationExpr.getPairs()) {
+                        for (MemberValuePair pair : normalAnnotationExpr.getPairs()) {
                             map.put(pair.getNameAsString(), pair.getValue().toString());
                         }
                     }
@@ -164,6 +164,7 @@ public class Reader {
                 counter++;
             }
             classDeclaration.setPackageDeclaration(packageDeclaration);
+            classDeclaration.setInterface(classOrInterfaceDeclaration.isInterface());
             classDeclaration.setImports(importDeclarations);
             classDeclaration.setAnnotations(annotations);
             classDeclaration.setName(name);

@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface TimerTrigger {
     String cron() default "";
+
     int rate() default 0;
 }

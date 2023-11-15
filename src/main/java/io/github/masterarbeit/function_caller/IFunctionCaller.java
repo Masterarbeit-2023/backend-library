@@ -6,6 +6,7 @@ import java.util.Map;
 
 public interface IFunctionCaller<T> {
 
-     T call(String functionName, T obj, HttpMethod httpMethod, Map<String, Object> parameter);
-     T call(String functionName);
+    T call(String functionName, T obj, HttpMethod httpMethod, Map<String, Object> parameter);
+
+    T call(String functionName);
 }

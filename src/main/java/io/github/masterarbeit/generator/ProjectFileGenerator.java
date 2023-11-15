@@ -22,8 +22,8 @@ public class ProjectFileGenerator {
                 map.put("FIELDS", "");
                 map.put("METHODS", "");
                 map.put("NAME", clazz.getName());
-                String httpMethod = pair.getSecond().getValues().get("httpMethod") ;
-                if (pair.getSecond().getValues().get("httpMethod") != null){
+                String httpMethod = pair.getSecond().getValues().get("httpMethod");
+                if (pair.getSecond().getValues().get("httpMethod") != null) {
                     map.put("HTTP_METHOD", httpMethod.replace("HhttpMethod.", "").toLowerCase());
                 } else {
                     map.put("HTTP_METHOD", "");
@@ -36,7 +36,7 @@ public class ProjectFileGenerator {
                         configuration.getProvider(),
                         pair.getFirst(),
                         map,
-                        Paths.get(pairs.getSecond()+ "/" + project.getName() + ".java")
+                        Paths.get(pairs.getSecond() + "/" + project.getName() + ".java")
                 );
             }
         }

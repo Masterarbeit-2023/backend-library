@@ -13,7 +13,8 @@ public class TemplateProcessor {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String replacement = valuesMap.get(matcher.group(1));
-            if (replacement == null) throw new IllegalStateException("Placeholder not found in values map. " + matcher.group(1));
+            if (replacement == null)
+                throw new IllegalStateException("Placeholder not found in values map. " + matcher.group(1));
             matcher.appendReplacement(sb, replacement);
         }
         matcher.appendTail(sb);

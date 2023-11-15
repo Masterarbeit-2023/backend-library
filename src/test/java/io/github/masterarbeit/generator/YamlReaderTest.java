@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.github.masterarbeit.generator.YamlReader.readYaml;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class YamlReaderTest {
 
@@ -27,6 +28,7 @@ class YamlReaderTest {
                 ProviderEnum.AZURE,
                 ProviderEnum.AZURE,
                 "yes",
+                "org.example",
                 ProviderEnum.AZURE,
                 Infrastructure.TRADITIONAL,
                 "none",

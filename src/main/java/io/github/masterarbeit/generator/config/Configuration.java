@@ -19,6 +19,7 @@ public class Configuration {
     ProviderEnum authentication_provider;
 
     String project_config;
+    String base_package;
     ProviderEnum provider;
     Infrastructure infrastructure;
     String authentication;
@@ -42,48 +43,51 @@ public class Configuration {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Configuration){
+        if (obj instanceof Configuration) {
             Configuration config = (Configuration) obj;
-            if (!this.azure.toString().equals(config.azure.toString())){
+            if (!this.azure.toString().equals(config.azure.toString())) {
                 return false;
             }
-            if (!this.aws.toString().equals(config.aws.toString())){
+            if (!this.aws.toString().equals(config.aws.toString())) {
                 return false;
             }
-            if (!this.google.toString().equals(config.google.toString())){
+            if (!this.google.toString().equals(config.google.toString())) {
                 return false;
             }
-            if (!this.on_premises.toString().equals(config.on_premises.toString())){
+            if (!this.on_premises.toString().equals(config.on_premises.toString())) {
                 return false;
             }
-            if (!this.email_provider.toString().equals(config.email_provider.toString())){
+            if (!this.email_provider.toString().equals(config.email_provider.toString())) {
                 return false;
             }
-            if (!this.authentication_provider.toString().equals(config.authentication_provider.toString())){
+            if (!this.authentication_provider.toString().equals(config.authentication_provider.toString())) {
                 return false;
             }
-            if (!this.project_config.equals(config.project_config)){
+            if (!this.project_config.equals(config.project_config)) {
                 return false;
             }
-            if (!this.provider.toString().equals(config.provider.toString())){
+            if (!this.base_package.equals(config.base_package)) {
                 return false;
             }
-            if (!this.infrastructure.equals(config.infrastructure)){
+            if (!this.provider.toString().equals(config.provider.toString())) {
                 return false;
             }
-            if (!this.authentication.equals(config.authentication)){
+            if (!this.infrastructure.equals(config.infrastructure)) {
                 return false;
             }
-            if (this.functions.size() != config.functions.size()){
+            if (!this.authentication.equals(config.authentication)) {
+                return false;
+            }
+            if (this.functions.size() != config.functions.size()) {
                 return false;
             } else {
                 try {
-                    for(String s : functions.keySet()) {
+                    for (String s : functions.keySet()) {
                         if (!functions.get(s).toString().equals(config.functions.get(s).toString())) {
                             return false;
                         }
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     return false;
                 }
             }

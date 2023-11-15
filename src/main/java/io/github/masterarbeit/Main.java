@@ -1,9 +1,9 @@
 package io.github.masterarbeit;
 
-import io.github.masterarbeit.generator.ProjectGenerator2;
 import io.github.masterarbeit.generator.config.Configuration;
 import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 import io.github.masterarbeit.generator.helper.Reader;
+import io.github.masterarbeit.generator.project.ProjectGenerator;
 
 import java.util.List;
 
@@ -18,10 +18,7 @@ public class Main {
         configuration = readYaml("config.yaml");
         System.out.println(configuration);
         project = Reader.readProject(projectRoot, classToIgnored);
-        List<ProjectDeclaration> generatedProjects = ProjectGenerator2.generateProjectDeclaration(project, configuration);
-        //List<ProjectDeclaration> generatedProjects = ProjectGenerator.generateProjectDeclarationWithProjectConfig(project, configuration);
-        //ProjectFileGenerator.generateProject(generatedProjects, configuration);
-        //ProjectFileGenerator.generateProjectServerless(generatedProjects, configuration);
+        List<ProjectDeclaration> generatedProjects = ProjectGenerator.getInstance().generateProjectDeclaration(project, configuration);
         System.out.println(generatedProjects);
     }
 }

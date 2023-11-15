@@ -1,6 +1,17 @@
 package io.github.masterarbeit.generator.project;
 
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import io.github.masterarbeit.Main;
+import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.helper.ClassDeclaration;
+import io.github.masterarbeit.generator.helper.FieldDeclaration;
+import io.github.masterarbeit.generator.helper.ProjectDeclaration;
+import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
+import org.apache.maven.model.Dependency;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ProjectGenerator {
 
@@ -23,4 +34,74 @@ public abstract class ProjectGenerator {
         }
         return instance;
     }
+
+    public List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project, Configuration configuration) {
+        List<ProjectDeclaration> generatedProjects = new ArrayList<>();
+        for (ClassDeclaration clazz : project.getClassDeclarations()) {
+            for (MethodDeclaration method : clazz.getMethods()) {
+                if (method.containsAnnotationApiFunction()) {
+                    generatedProjects.add(processMethodDeclaration(method));
+                }
+            }
+        }
+        return generatedProjects;
+    }
+
+    protected ProjectDeclaration processMethodDeclaration(MethodDeclaration method) {
+
+        ProjectDeclaration newProject = new ProjectDeclaration();
+        return newProject;
+    }
+
+    protected List<Dependency> getNeededDependencies(ProjectDeclaration project, List<Dependency> dependencies) {
+        List<String> imports = new ArrayList<>();
+        project.getClassDeclarations().forEach(value -> imports.addAll(value.getImports()));
+        List<Dependency> newDependencies = new ArrayList<>();
+        for (Dependency dependency : dependencies) {
+            if (isDependencyNeeded(imports, dependency)) {
+                newDependencies.add(dependency);
+            }
+        }
+        return newDependencies;
+    }
+
+    protected boolean isDependencyNeeded(List<String> imports, Dependency dependency) {
+        for (String imp : imports) {
+            if (imp.contains(dependency.getGroupId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected List<ClassDeclaration> createNeededClasses(List<String> imports, ProjectDeclaration project) {
+        List<String> classesToCreate = imports.stream().filter(value -> value.contains("com.example")).map(value -> value.replace("com.example.", "")).toList();
+        List<ClassDeclaration> createdClasses = new ArrayList<>();
+
+        for (String s : classesToCreate) {
+            String[] arr = s.split("\\.");
+            ClassDeclaration clazz = Main.project.getClassDeclarationsByName(arr[arr.length - 1]);
+            if (project.getClassDeclarationsByName(clazz.getName()) == null) {
+                clazz.setPackageDeclaration(clazz.getPackageDeclaration().replace(Main.configuration.getBase_package(), "com.example"));
+                clazz.setProject(null);
+                clazz.setOtherClass(true);
+                createdClasses.add(clazz);
+            }
+        }
+        return createdClasses;
+    }
+
+    protected List<FieldDeclaration> filterNeededFields(List<FieldDeclaration> fields, BlockStmt body) {
+        return fields.stream().filter(field -> bodyContainsString(body, field.getName())).toList();
+    }
+
+    protected boolean bodyContainsString(BlockStmt body, String s) {
+        for (Statement statement : body.getStatements()) {
+            if (statement.toString().contains(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

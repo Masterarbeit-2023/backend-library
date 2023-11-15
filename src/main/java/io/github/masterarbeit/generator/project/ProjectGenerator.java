@@ -4,6 +4,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.config.Infrastructure;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.generator.helper.method.*;
 import io.github.masterarbeit.util.HttpMethod;
@@ -34,6 +35,20 @@ public abstract class ProjectGenerator {
             }
         }
         return instance;
+    }
+
+    public static List<ProjectDeclaration> generate(ProjectDeclaration project, Configuration configuration) {
+        List<ProjectDeclaration> newProjects = new ServerlessProjectGenerator().generateProjectDeclaration(project, configuration);
+
+        if (configuration.getInfrastructure() == Infrastructure.TRADITIONAL) {
+            ProjectDeclaration tmpProject = newProjects.get(0);
+            for (int i = 1; i < newProjects.size(); i++) {
+                tmpProject = tmpProject.combine(newProjects.get(i));
+            }
+            newProjects.clear();
+            newProjects.add(tmpProject);
+        }
+        return newProjects;
     }
 
     public List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project, Configuration configuration) {

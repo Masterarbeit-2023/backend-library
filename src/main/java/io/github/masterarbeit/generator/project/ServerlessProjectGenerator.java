@@ -15,20 +15,6 @@ import static io.github.masterarbeit.util.Constants.LIBRARY_BASE_PACKAGE;
 
 public class ServerlessProjectGenerator extends ProjectGenerator {
 
-    private static ServerlessProjectGenerator instance = null;
-
-    private ServerlessProjectGenerator() {
-
-    }
-
-    public static ServerlessProjectGenerator getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        instance = new ServerlessProjectGenerator();
-        return instance;
-    }
-
     protected ProjectDeclaration processMethodDeclaration(MethodDeclaration method) {
 
         ProjectDeclaration newProject = new ProjectDeclaration();

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static io.github.masterarbeit.util.ListUtil.combineWithoutDuplicates;
 
@@ -59,5 +60,13 @@ public class ClassDeclaration {
         return clazz;
     }
 
+    public static int listContainsProject(List<ClassDeclaration> classes, ClassDeclaration clazz) {
+        for (int i = 0; i < classes.size(); i++) {
+            if (Objects.equals(classes.get(i).getName(), clazz.getName())) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
 }

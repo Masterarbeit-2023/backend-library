@@ -18,7 +18,8 @@ public class Main {
         configuration = readYaml("config.yaml");
         System.out.println(configuration);
         project = Reader.readProject(projectRoot, classToIgnored);
-        List<ProjectDeclaration> generatedProjects = ProjectGenerator.getInstance().generateProjectDeclaration(project, configuration);
+        //List<ProjectDeclaration> generatedProjects = ProjectGenerator.getInstance().generateProjectDeclaration(project, configuration);
+        List<ProjectDeclaration> generatedProjects = ProjectGenerator.generate(project, configuration);
         System.out.println(generatedProjects);
     }
 }

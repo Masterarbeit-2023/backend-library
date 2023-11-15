@@ -1,14 +1,16 @@
 package io.github.masterarbeit.generator.helper;
 
 import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
-import io.github.masterarbeit.util.ListUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -49,31 +51,41 @@ public class ProjectDeclaration {
         newProject.setPom(combinePom(project.pom));
 
         newProject.setName(name);
-
-        newProject.setClassDeclarations(combineClasses(project.classDeclarations));
+        List<ClassDeclaration> newClasses = combineClasses(project.classDeclarations);
+        newProject.setClassDeclarations(newClasses);
 
         return newProject;
     }
 
     private Model combinePom(Model pomToCombine) {
         Model newPom = pom.clone();
-        newPom.setDependencies(ListUtil.combineWithoutDuplicates(pom.getDependencies(), pomToCombine.getDependencies()));
+        Map<String, Dependency> map = new HashMap<>();
+        for (Dependency item : pom.getDependencies()) {
+            map.putIfAbsent(item.getGroupId(), item);
+        }
+
+        // Process List B
+        for (Dependency item : pomToCombine.getDependencies()) {
+            map.putIfAbsent(item.getGroupId(), item);
+        }
+        newPom.setDependencies(new ArrayList<>(map.values()));
         return newPom;
     }
 
     private List<ClassDeclaration> combineClasses(List<ClassDeclaration> classes) {
-        List<ClassDeclaration> newClasses = new ArrayList<>();
+        Map<String, ClassDeclaration> nameMap = new HashMap<>();
 
-        for (ClassDeclaration clazz : classDeclarations) {
-            List<ClassDeclaration> sameClasses = newClasses.stream().filter(value -> value.getName().equals(clazz.getName())).toList();
-            if (!sameClasses.isEmpty()) {
-                newClasses.add(clazz.combine(sameClasses.get(0)));
-            } else {
-                newClasses.add(clazz);
-            }
+        // Process List A
+        for (ClassDeclaration item : classDeclarations) {
+            nameMap.putIfAbsent(item.name, item);
         }
 
+        // Process List B
+        for (ClassDeclaration item : classes) {
+            nameMap.merge(item.name, item, ClassDeclaration::combine);
+        }
 
-        return newClasses;
+        // Convert map values to a list
+        return new ArrayList<>(nameMap.values());
     }
 }

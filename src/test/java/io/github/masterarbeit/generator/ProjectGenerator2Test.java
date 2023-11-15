@@ -14,7 +14,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ProjectGeneratorTest {
+class ProjectGenerator2Test {
 
     Model model = new Model();
 
@@ -122,6 +122,6 @@ class ProjectGeneratorTest {
         project.setClassDeclarations(classDeclarations);
 
 
-        assertEquals(new ArrayList<>(), ProjectGenerator.generateProjectDeclaration(project, configuration));
+        assertEquals(new ArrayList<>(), ProjectGenerator2.generateProjectDeclaration(project, configuration));
     }
 }

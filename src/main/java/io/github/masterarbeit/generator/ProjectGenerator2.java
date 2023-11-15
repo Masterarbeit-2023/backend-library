@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectGenerator {
+public class ProjectGenerator2 {
 
     public static List<ProjectDeclaration> generateProjectDeclarationWithProjectConfig(ProjectDeclaration projectDeclaration, Configuration configuration) {
         Infrastructure infrastructure = configuration.getInfrastructure();

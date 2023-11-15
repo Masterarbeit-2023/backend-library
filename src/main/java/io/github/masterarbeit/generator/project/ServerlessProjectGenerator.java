@@ -1,13 +1,17 @@
 package io.github.masterarbeit.generator.project;
 
 import io.github.masterarbeit.Main;
-import io.github.masterarbeit.generator.helper.*;
-import io.github.masterarbeit.generator.helper.method.*;
-import io.github.masterarbeit.util.HttpMethod;
+import io.github.masterarbeit.generator.helper.ClassDeclaration;
+import io.github.masterarbeit.generator.helper.FieldDeclaration;
+import io.github.masterarbeit.generator.helper.ProjectDeclaration;
+import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import io.github.masterarbeit.util.StringUtil;
 import org.apache.maven.model.Model;
 
 import java.util.List;
+
+import static io.github.masterarbeit.util.Constants.GENERATED_PROJECTS_BASE_PACKAGE;
+import static io.github.masterarbeit.util.Constants.LIBRARY_BASE_PACKAGE;
 
 public class ServerlessProjectGenerator extends ProjectGenerator {
 
@@ -33,12 +37,12 @@ public class ServerlessProjectGenerator extends ProjectGenerator {
         ClassDeclaration newClass = new ClassDeclaration();
 
         newClass.setName(StringUtil.capitalize(method.getName()));
-        newClass.setPackageDeclaration("com.example" + method.getClazz().getPackageDeclaration().replace(Main.configuration.getBase_package(), ""));
+        newClass.setPackageDeclaration(GENERATED_PROJECTS_BASE_PACKAGE + method.getClazz().getPackageDeclaration().replace(Main.configuration.getBase_package(), ""));
 
         List<FieldDeclaration> fields = filterNeededFields(method.getClazz().getFields(), method.getBody());
         newClass.setFields(fields);
-        List<String> imports = method.getClazz().getImports().stream().filter(value -> !value.contains("io.github.masterarbeit")).toList();
-        imports = imports.stream().map(value -> value.replace(Main.configuration.getBase_package(), "com.example")).toList();
+        List<String> imports = method.getClazz().getImports().stream().filter(value -> !value.contains(LIBRARY_BASE_PACKAGE)).toList();
+        imports = imports.stream().map(value -> value.replace(Main.configuration.getBase_package(), GENERATED_PROJECTS_BASE_PACKAGE)).toList();
         newClass.setImports(imports);
 
         MethodDeclaration newMethod = initializeMethod(method);
@@ -61,67 +65,5 @@ public class ServerlessProjectGenerator extends ProjectGenerator {
         return newProject;
     }
 
-    private MethodDeclaration initializeMethod(MethodDeclaration method) {
-        if (method.containsAnnotation("HttpTrigger")) {
-            Annotation annotation = method.getAnnotation("HttpTrigger");
-            HttpMethodDeclaration methodDeclaration = new HttpMethodDeclaration();
-            try {
-                methodDeclaration.setRequestType(HttpMethod.valueOf(annotation.getValues().get("httpMethod").replace("HttpMethod.", "")));
-            } catch (Exception exception) {
-                methodDeclaration.setRequestType(HttpMethod.GET);
-            }
 
-            methodDeclaration.setPathVariable(
-                    method.getParameters().stream().filter(ParameterDeclaration::isPathVariable).map(ParameterDeclaration::getName).toList()
-            );
-            try {
-                methodDeclaration.setAuthentication(annotation.getValues().get("authentication"));
-            } catch (Exception e) {
-                methodDeclaration.setAuthentication("");
-            }
-            return methodDeclaration;
-        }
-        if (method.containsAnnotation("TimerTrigger")) {
-            Annotation annotation = method.getAnnotation("TimerTrigger");
-            TimerMethodDeclaration methodDeclaration = new TimerMethodDeclaration();
-            try {
-                methodDeclaration.setCron(annotation.getValues().get("cron"));
-            } catch (Exception e) {
-
-            }
-            try {
-                methodDeclaration.setRate(Integer.parseInt(annotation.getValues().get("rate")));
-            } catch (Exception e) {
-
-            }
-
-            return methodDeclaration;
-        }
-        if (method.containsAnnotation("DatabaseTrigger")) {
-            Annotation annotation = method.getAnnotation("DatabaseTrigger");
-            DatabaseMethodDeclaration methodDeclaration = new DatabaseMethodDeclaration();
-            try {
-                methodDeclaration.setQuery(annotation.getValues().get("query"));
-            } catch (Exception e) {
-
-            }
-            return methodDeclaration;
-        }
-        if (method.containsAnnotation("RabbitMqTrigger")) {
-            Annotation annotation = method.getAnnotation("RabbitMqTrigger");
-            RabbitMqMethodDeclaration methodDeclaration = new RabbitMqMethodDeclaration();
-            try {
-                methodDeclaration.setMessage(annotation.getValues().get("message"));
-            } catch (Exception e) {
-
-            }
-            try {
-                methodDeclaration.setTopicName(annotation.getValues().get("topicName"));
-            } catch (Exception e) {
-
-            }
-            return methodDeclaration;
-        }
-        return null;
-    }
 }

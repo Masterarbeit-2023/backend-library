@@ -4,14 +4,15 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.Configuration;
-import io.github.masterarbeit.generator.helper.ClassDeclaration;
-import io.github.masterarbeit.generator.helper.FieldDeclaration;
-import io.github.masterarbeit.generator.helper.ProjectDeclaration;
-import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
+import io.github.masterarbeit.generator.helper.*;
+import io.github.masterarbeit.generator.helper.method.*;
+import io.github.masterarbeit.util.HttpMethod;
 import org.apache.maven.model.Dependency;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.github.masterarbeit.util.Constants.*;
 
 public abstract class ProjectGenerator {
 
@@ -102,6 +103,70 @@ public abstract class ProjectGenerator {
             }
         }
         return false;
+    }
+
+    protected MethodDeclaration initializeMethod(MethodDeclaration method) {
+        if (method.containsAnnotation(HTTP_TRIGGER)) {
+            Annotation annotation = method.getAnnotation(HTTP_TRIGGER);
+            HttpMethodDeclaration methodDeclaration = new HttpMethodDeclaration();
+            try {
+                methodDeclaration.setRequestType(HttpMethod.valueOf(annotation.getValues().get("httpMethod").replace("HttpMethod.", "")));
+            } catch (Exception exception) {
+                methodDeclaration.setRequestType(HttpMethod.GET);
+            }
+
+            methodDeclaration.setPathVariable(
+                    method.getParameters().stream().filter(ParameterDeclaration::isPathVariable).map(ParameterDeclaration::getName).toList()
+            );
+            try {
+                methodDeclaration.setAuthentication(annotation.getValues().get("authentication"));
+            } catch (Exception e) {
+                methodDeclaration.setAuthentication("");
+            }
+            return methodDeclaration;
+        }
+        if (method.containsAnnotation(TIMER_TRIGGER)) {
+            Annotation annotation = method.getAnnotation(TIMER_TRIGGER);
+            TimerMethodDeclaration methodDeclaration = new TimerMethodDeclaration();
+            try {
+                methodDeclaration.setCron(annotation.getValues().get("cron"));
+            } catch (Exception e) {
+
+            }
+            try {
+                methodDeclaration.setRate(Integer.parseInt(annotation.getValues().get("rate")));
+            } catch (Exception e) {
+
+            }
+
+            return methodDeclaration;
+        }
+        if (method.containsAnnotation(DATABASE_TRIGGER)) {
+            Annotation annotation = method.getAnnotation(DATABASE_TRIGGER);
+            DatabaseMethodDeclaration methodDeclaration = new DatabaseMethodDeclaration();
+            try {
+                methodDeclaration.setQuery(annotation.getValues().get("query"));
+            } catch (Exception e) {
+
+            }
+            return methodDeclaration;
+        }
+        if (method.containsAnnotation(RABBIT_MQ_TRIGGER)) {
+            Annotation annotation = method.getAnnotation(RABBIT_MQ_TRIGGER);
+            RabbitMqMethodDeclaration methodDeclaration = new RabbitMqMethodDeclaration();
+            try {
+                methodDeclaration.setMessage(annotation.getValues().get("message"));
+            } catch (Exception e) {
+
+            }
+            try {
+                methodDeclaration.setTopicName(annotation.getValues().get("topicName"));
+            } catch (Exception e) {
+
+            }
+            return methodDeclaration;
+        }
+        return null;
     }
 
 }

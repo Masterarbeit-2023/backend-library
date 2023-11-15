@@ -1,10 +1,12 @@
 package io.github.masterarbeit.generator;
 
+import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.*;
 import io.github.masterarbeit.generator.helper.ClassDeclaration;
 import io.github.masterarbeit.generator.helper.FieldDeclaration;
 import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
+import io.github.masterarbeit.generator.project.ProjectGenerator;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +16,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ProjectGenerator2Test {
+class ProjectGeneratorTest {
 
     Model model = new Model();
 
@@ -80,6 +82,7 @@ class ProjectGenerator2Test {
                 "none",
                 map
         );
+        Main.configuration = configuration;
         ProjectDeclaration project = new ProjectDeclaration();
         project.setName("test_test");
         project.setPom(model);
@@ -122,6 +125,6 @@ class ProjectGenerator2Test {
         project.setClassDeclarations(classDeclarations);
 
 
-        assertEquals(new ArrayList<>(), ProjectGenerator2.generateProjectDeclaration(project, configuration));
+        assertEquals(new ArrayList<>(), ProjectGenerator.getInstance().generateProjectDeclaration(project, configuration));
     }
 }

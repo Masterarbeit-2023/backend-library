@@ -8,37 +8,19 @@ import io.github.masterarbeit.generator.config.Infrastructure;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.generator.helper.method.*;
 import io.github.masterarbeit.util.HttpMethod;
+import io.github.masterarbeit.util.StringUtil;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.masterarbeit.util.Constants.*;
 
-public abstract class ProjectGenerator {
+public class ProjectGenerator {
 
-    private static ProjectGenerator instance = null;
-
-    public static ProjectGenerator getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        switch (Main.configuration.getInfrastructure()) {
-            case SERVERLESS -> {
-                instance = ServerlessProjectGenerator.getInstance();
-            }
-            case TRADITIONAL -> {
-                instance = TraditionalProjectGenerator.getInstance();
-            }
-            case MICROSERVICES -> {
-                instance = MicroserviceProjectGenerator.getInstance();
-            }
-        }
-        return instance;
-    }
-
-    public static List<ProjectDeclaration> generate(ProjectDeclaration project, Configuration configuration) {
-        List<ProjectDeclaration> newProjects = new ServerlessProjectGenerator().generateProjectDeclaration(project, configuration);
+    public List<ProjectDeclaration> generate(ProjectDeclaration project, Configuration configuration) {
+        List<ProjectDeclaration> newProjects = new ProjectGenerator().generateProjectDeclaration(project);
 
         if (configuration.getInfrastructure() == Infrastructure.TRADITIONAL) {
             ProjectDeclaration tmpProject = newProjects.get(0);
@@ -51,7 +33,7 @@ public abstract class ProjectGenerator {
         return newProjects;
     }
 
-    public List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project, Configuration configuration) {
+    public List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project) {
         List<ProjectDeclaration> generatedProjects = new ArrayList<>();
         for (ClassDeclaration clazz : project.getClassDeclarations()) {
             for (MethodDeclaration method : clazz.getMethods()) {
@@ -66,6 +48,36 @@ public abstract class ProjectGenerator {
     protected ProjectDeclaration processMethodDeclaration(MethodDeclaration method) {
 
         ProjectDeclaration newProject = new ProjectDeclaration();
+        newProject.setName(method.getName());
+
+        ClassDeclaration newClass = new ClassDeclaration();
+
+        newClass.setName(StringUtil.capitalize(method.getName()));
+        newClass.setPackageDeclaration(GENERATED_PROJECTS_BASE_PACKAGE + method.getClazz().getPackageDeclaration().replace(Main.configuration.getBase_package(), ""));
+
+        List<FieldDeclaration> fields = filterNeededFields(method.getClazz().getFields(), method.getBody());
+        newClass.setFields(fields);
+        List<String> imports = method.getClazz().getImports().stream().filter(value -> !value.contains(LIBRARY_BASE_PACKAGE)).toList();
+        imports = imports.stream().map(value -> value.replace(Main.configuration.getBase_package(), GENERATED_PROJECTS_BASE_PACKAGE)).toList();
+        newClass.setImports(imports);
+
+        MethodDeclaration newMethod = initializeMethod(method);
+
+        newMethod.setName(method.getName());
+        newMethod.setBody(method.getBody());
+        newMethod.setReturnType(method.getReturnType());
+        newMethod.setAnnotations(method.getAnnotations());
+        newMethod.setParameters(method.getParameters());
+
+        newClass.addMethod(newMethod);
+        newProject.addClassDeclaration(newClass);
+        createNeededClasses(imports, newProject).forEach(newProject::addClassDeclaration);
+        Model newPom = method.getClazz().getProject().getPom().clone();
+        newPom.setName(method.getName());
+        newPom.setArtifactId(method.getName());
+        newPom.setDependencies(getNeededDependencies(newProject, newPom.getDependencies()));
+        newProject.setPom(newPom);
+
         return newProject;
     }
 

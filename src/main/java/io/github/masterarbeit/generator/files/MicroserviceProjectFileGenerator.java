@@ -5,7 +5,7 @@ import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 
 import java.util.List;
 
-public abstract class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
+public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
 
     public void generate(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
 

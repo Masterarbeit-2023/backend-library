@@ -5,7 +5,7 @@ import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 
 import java.util.List;
 
-public abstract class TraditionalProjectFileGenerator extends ProjectFileGenerator {
+public class TraditionalProjectFileGenerator extends ProjectFileGenerator {
 
     public void generate(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
 

@@ -1,6 +1,7 @@
 package io.github.masterarbeit;
 
 import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.files.ProjectFileGenerator;
 import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 import io.github.masterarbeit.generator.helper.Reader;
 import io.github.masterarbeit.generator.project.ProjectGenerator;
@@ -20,5 +21,7 @@ public class Main {
         project = Reader.readProject(projectRoot, classToIgnored);
         List<ProjectDeclaration> generatedProjects = new ProjectGenerator().generate(project, configuration);
         System.out.println(generatedProjects);
+        ProjectFileGenerator.generateFiles(generatedProjects, configuration);
+        System.out.println();
     }
 }

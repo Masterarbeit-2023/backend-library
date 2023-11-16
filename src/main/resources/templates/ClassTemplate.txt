@@ -1,0 +1,12 @@
+package {{PACKAGE}};
+
+{{IMPORTS}}
+
+{{ANNOTATIONS}}
+public {{TYPE}} {{CLASS_NAME}} {{EXTENDED_TYPE}} {
+
+    {{FIELDS}}
+
+    {{METHODS}}
+
+}

@@ -28,7 +28,7 @@ public class ProjectDeclaration {
     public Pair<RequestType, Annotation> getRequestTypeAndAnnotationByMethodName(String functionName) {
         for (ClassDeclaration clazz : classDeclarations) {
             for (MethodDeclaration method : clazz.getMethods()) {
-                if (functionName.equals(method.getName())) {
+                if (functionName.toLowerCase().equals(method.getName())) {
                     return method.getRequestTypeAndAnnotation();
                 }
             }

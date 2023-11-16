@@ -81,4 +81,23 @@ public class Writer {
 
         Writer.writeStringToJavaFile(processedTemplate, savePath);
     }
+
+    public static void generateOtherClassAndSaveFile(Map<String, String> values, Path savePath) {
+        URL templatePath = Writer.class.getClassLoader().getResource("templates/ClassTemplate.txt");
+        Resource resource = new ClassPathResource("templates/ClassTemplate.txt");
+
+        String template = null;
+        try {
+            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            template = new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String processedTemplate = TemplateProcessor.processTemplate(template, values);
+
+        Writer.writeStringToJavaFile(processedTemplate, savePath);
+    }
+
+
 }

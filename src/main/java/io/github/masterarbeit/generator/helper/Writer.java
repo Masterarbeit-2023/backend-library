@@ -16,6 +16,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Writer {
@@ -97,6 +98,37 @@ public class Writer {
         String processedTemplate = TemplateProcessor.processTemplate(template, values);
 
         Writer.writeStringToJavaFile(processedTemplate, savePath);
+    }
+
+    public static void generateDockerfile(Path path) {
+        Resource resource = new ClassPathResource("templates/Dockerfile.txt");
+
+        String template = null;
+        try {
+            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            template = new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String processedTemplate = TemplateProcessor.processTemplate(template, new HashMap<>());
+        Writer.writeStringToJavaFile(processedTemplate, path);
+    }
+
+    public void generateDockerCompose(Path path) {
+
+        Resource resource = new ClassPathResource("templates/docker-compose.txt");
+
+        String template = null;
+        try {
+            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            template = new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String processedTemplate = TemplateProcessor.processTemplate(template, new HashMap<>());
+        Writer.writeStringToJavaFile(processedTemplate, path);
     }
 
 

@@ -10,4 +10,12 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
     public void generate(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
 
     }
+
+    private void generateDockerfile() {
+
+    }
+
+    private void generateDockerCompose() {
+
+    }
 }

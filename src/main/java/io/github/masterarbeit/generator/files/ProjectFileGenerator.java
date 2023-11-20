@@ -16,20 +16,10 @@ public abstract class ProjectFileGenerator {
 
     public static void generateFiles(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
         switch (configuration.getInfrastructure()) {
-            case TRADITIONAL -> {
-                new TraditionalProjectFileGenerator().generate(generatedProjects, configuration);
-            }
-            case MICROSERVICES -> {
-                new MicroserviceProjectFileGenerator().generate(generatedProjects, configuration);
-            }
-            case SERVERLESS -> {
-                new ServerlessProjectFilesGenerator().generate(generatedProjects, configuration);
-            }
+            case TRADITIONAL -> new TraditionalProjectFileGenerator().generate(generatedProjects, configuration);
+            case MICROSERVICES -> new MicroserviceProjectFileGenerator().generate(generatedProjects, configuration);
+            case SERVERLESS -> new ServerlessProjectFilesGenerator().generate(generatedProjects, configuration);
         }
-    }
-
-    protected void generate(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
-
     }
 
     protected void generateOtherClass(ClassDeclaration clazz, String pathBasePackage) {
@@ -45,7 +35,7 @@ public abstract class ProjectFileGenerator {
             List<String> extendedTypes = clazz.getExtendedTypes();
             String s = "extends ";
             for (int i = 0; i < extendedTypes.size(); i++) {
-                s += extendedTypes.get(i) + (i == extendedTypes.size() - 1 ? ", " : "");
+                s += extendedTypes.get(i) + (i == extendedTypes.size() - 1 ? "" : ", ");
             }
             values.put("EXTENDED_TYPE", s);
         }
@@ -79,15 +69,6 @@ public abstract class ProjectFileGenerator {
 
         for (String s : annotations) {
             tmpString.append("@ ").append(s).append("\n");
-        }
-        return tmpString.toString();
-    }
-
-    protected String listOfStringsToString(List<String> strings) {
-        StringBuilder tmpString = new StringBuilder();
-
-        for (String s : strings) {
-            tmpString.append(s).append("\n");
         }
         return tmpString.toString();
     }

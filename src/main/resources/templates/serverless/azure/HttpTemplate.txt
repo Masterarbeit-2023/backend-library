@@ -15,8 +15,8 @@ public class {{CLASS_NAME}} {
                 methods = {"HttpMethod.{{HTTP_METHOD}}"},
                 authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<Optional<{{PARAMETER_TYPE}}> request,
-            final ExecutionContext context) {
-        {{BODY}}
-    }
+            final ExecutionContext context)
+            {{BODY}}
+
 
 }

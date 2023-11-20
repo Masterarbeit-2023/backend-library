@@ -1,7 +1,18 @@
 package io.github.masterarbeit.generator.files;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.config.ProviderEnum;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.generator.helper.method.HttpMethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
@@ -26,6 +37,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     Map<String, String> map = new HashMap<>();
                     StringBuilder parameters = new StringBuilder();
                     String parameterType = "";
+                    BlockStmt body = clazz.getMethods().get(0).getBody();
                     if (method instanceof HttpMethodDeclaration) {
                         map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
                         map.put("RETURN_TYPE", method.getReturnType());
@@ -39,6 +51,32 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                     parameters.append(", ");
                                 }
                                 parameters.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
+                            } else {
+                                if (configuration.getProvider().equals(ProviderEnum.AZURE)) {
+                                    MethodCallExpr getOrDefaultCall = new MethodCallExpr(
+                                            new MethodCallExpr(new NameExpr("request"), "getQueryParameters"),
+                                            "getOrDefault",
+                                            new NodeList<>(
+                                                    new NameExpr(parameterDecl.getName()),
+                                                    new StringLiteralExpr("")
+                                            )
+                                    );
+                                    VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
+                                            new VariableDeclarator(
+                                                    new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
+                                                    parameterDecl.getName(),
+                                                    getOrDefaultCall
+                                            )
+                                    );
+                                    BlockStmt block = new BlockStmt();
+                                    block.addStatement(new ExpressionStmt(varDecl));
+                                    for (Statement stmt : body.getStatements()) {
+                                        block.addStatement(stmt);
+                                    }
+                                    body = block;
+                                } else if (configuration.getProvider().equals(ProviderEnum.AWS)) {
+                                    // TODO Create Type
+                                }
                             }
                         }
                     }
@@ -58,7 +96,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     map.put("NAME", clazz.getName());
                     map.put("PARAMETER", parameters.toString());
                     map.put("PARAMETER_TYPE", parameterType);
-                    map.put("BODY", clazz.getMethods().get(0).getBody().toString());
+                    map.put("BODY", body.toString());
                     Writer.generateServerlessTemplateAndSaveFile(
                             configuration.getProvider(),
                             pair.getFirst(),

@@ -18,7 +18,9 @@ import io.github.masterarbeit.generator.helper.method.HttpMethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.RabbitMqMethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.TimerMethodDeclaration;
+import io.github.masterarbeit.util.StringUtil;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     Map<String, String> map = new HashMap<>();
                     StringBuilder parameters = new StringBuilder();
                     String parameterType = "";
+                    String tmpClass = "";
                     BlockStmt body = clazz.getMethods().get(0).getBody();
                     if (method instanceof HttpMethodDeclaration) {
                         map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
@@ -45,6 +48,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                         if (paramDecl.size() == 1) {
                             parameterType = paramDecl.get(0).getType();
                         }
+                        StringBuilder parameterTypes = new StringBuilder();
                         for (ParameterDeclaration parameterDecl : method.getParameters()) {
                             if (!parameterDecl.getAnnotation().contains("ApiPathVariable")) {
                                 if (!parameters.toString().isBlank()) {
@@ -75,10 +79,12 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                     }
                                     body = block;
                                 } else if (configuration.getProvider().equals(ProviderEnum.AWS)) {
-                                    // TODO Create Type
+                                    parameterTypes.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName()).append(";\n");
+                                    // TODO Parameter auslesen wie bei Azure
                                 }
                             }
                         }
+                        tmpClass = "private class TmpClass {\n" + parameterTypes + parameterType + " " + StringUtil.firstCharToLowercase(parameterType) + ";\n}";
                     }
                     if (method instanceof TimerMethodDeclaration) {
                         map.put("SCHEDULE", ((TimerMethodDeclaration) method).getCron());
@@ -90,10 +96,15 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                         map.put("SCHEDULE", ((RabbitMqMethodDeclaration) method).getMessage());
                     }
                     Pair<RequestType, Annotation> pair = Main.project.getRequestTypeAndAnnotationByMethodName(clazz.getName());
+                    if (!tmpClass.isBlank()) {
+                        parameterType = "TmpClass";
+                        parameters = new StringBuilder(parameterType + " " + StringUtil.firstCharToLowercase(parameterType));
+                    }
                     map.put("IMPORTS", importsToString(clazz.getImports()));
                     map.put("CLASS_NAME", clazz.getName());
                     map.put("FIELDS", fieldsToString(clazz.getFields()));
                     map.put("NAME", clazz.getName());
+                    map.put("PRIVATE_CLASS", tmpClass);
                     map.put("PARAMETER", parameters.toString());
                     map.put("PARAMETER_TYPE", parameterType);
                     map.put("BODY", body.toString());
@@ -105,6 +116,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     );
                 }
             }
+            Writer.writePomXml(pairs.getFirst() + File.separator + "pom.xml", project.getPom());
         }
     }
 }

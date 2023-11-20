@@ -23,7 +23,6 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     map.put("IMPORTS", "");
                     map.put("CLASS_NAME", clazz.getName());
                     map.put("FIELDS", "");
-                    map.put("METHODS", "");
                     map.put("NAME", clazz.getName());
                     String httpMethod = pair.getSecond().getValues().get("httpMethod");
                     if (pair.getSecond().getValues().get("httpMethod") != null) {

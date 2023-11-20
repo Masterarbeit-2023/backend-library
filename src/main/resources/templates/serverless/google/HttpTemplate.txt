@@ -9,8 +9,6 @@ public class {{CLASS_NAME}} implements HttpFunction {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
      @Override
       public void service(HttpRequest request, HttpResponse response) throws Exception {
         {{BODY}}

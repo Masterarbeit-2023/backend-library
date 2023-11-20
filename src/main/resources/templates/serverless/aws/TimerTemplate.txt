@@ -9,8 +9,6 @@ public class {{CLASS_NAME}} implements RequestHandler<ScheduledEvent, String> {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
     @Override
     public String handleRequest(ScheduledEvent event, Context context) {
         {{BODY}}

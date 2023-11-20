@@ -9,8 +9,6 @@ public class {{CLASS_NAME}} {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
     @FunctionName("{{NAME}}")
     public HttpResponseMessage {{NAME}}(
             @HttpTrigger(name = "req",

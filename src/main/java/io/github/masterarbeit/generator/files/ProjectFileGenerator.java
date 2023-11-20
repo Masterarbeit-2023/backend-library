@@ -2,6 +2,7 @@ package io.github.masterarbeit.generator.files;
 
 import io.github.masterarbeit.generator.config.Configuration;
 import io.github.masterarbeit.generator.helper.ClassDeclaration;
+import io.github.masterarbeit.generator.helper.FieldDeclaration;
 import io.github.masterarbeit.generator.helper.ProjectDeclaration;
 import io.github.masterarbeit.generator.helper.Writer;
 import io.github.masterarbeit.util.Constants;
@@ -60,6 +61,17 @@ public abstract class ProjectFileGenerator {
 
         for (String s : imports) {
             tmpString.append("import ").append(s).append(";\n");
+        }
+        return tmpString.toString();
+    }
+
+    protected String fieldsToString(List<FieldDeclaration> fields) {
+
+        StringBuilder tmpString = new StringBuilder();
+
+        for (FieldDeclaration field : fields) {
+            tmpString.append(annotationsToString(field.getAnnotations()));
+            tmpString.append(field.getType()).append(" ").append(field.getName()).append(";\n");
         }
         return tmpString.toString();
     }

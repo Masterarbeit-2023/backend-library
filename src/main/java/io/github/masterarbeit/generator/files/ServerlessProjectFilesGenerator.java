@@ -37,6 +37,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     map.put("PARAMETER", clazz.getMethods().get(0).getParameters().toString());
                     map.put("PARAMETER_TYPE", clazz.getMethods().get(0).getParameters().toString());
                     map.put("BODY", clazz.getMethods().get(0).getBody().toString());
+                    map.put("RETURN_TYPE", clazz.getMethods().get(0).getReturnType());
                     Writer.generateServerlessTemplateAndSaveFile(
                             configuration.getProvider(),
                             pair.getFirst(),

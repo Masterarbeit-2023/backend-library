@@ -1,6 +1,5 @@
 package io.github.masterarbeit.generator.helper;
 
-import io.github.masterarbeit.generator.TemplateLoader;
 import io.github.masterarbeit.generator.TemplateProcessor;
 import io.github.masterarbeit.generator.config.ProviderEnum;
 import org.apache.maven.model.Model;
@@ -12,7 +11,6 @@ import org.springframework.util.FileCopyUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,21 +54,10 @@ public class Writer {
         }
     }
 
-    public static void generateTemplateAndSaveFile(String templatePath, Map<String, String> values, Path savePath) {
-        String template;
-
-        template = TemplateLoader.loadTemplate(templatePath);
-
-        String processedTemplate = TemplateProcessor.processTemplate(template, values);
-
-        Writer.writeStringToJavaFile(processedTemplate, savePath);
-    }
-
     public static void generateServerlessTemplateAndSaveFile(ProviderEnum provider, RequestType requestType, Map<String, String> values, Path savePath) {
-        URL templatePath = Writer.class.getClassLoader().getResource("templates/serverless/" + provider.name().toLowerCase() + "/" + requestType + "Template.txt");
         Resource resource = new ClassPathResource("templates/serverless/" + provider.name().toLowerCase() + "/" + requestType + "Template.txt");
 
-        String template = null;//TemplateLoader.loadTemplate(templatePath.getPath());
+        String template = null;
         try {
             byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
             template = new String(bytes, "UTF-8");
@@ -84,7 +71,6 @@ public class Writer {
     }
 
     public static void generateOtherClassAndSaveFile(Map<String, String> values, Path savePath) {
-        URL templatePath = Writer.class.getClassLoader().getResource("templates/ClassTemplate.txt");
         Resource resource = new ClassPathResource("templates/ClassTemplate.txt");
 
         String template = null;

@@ -1,3 +1,0 @@
-{{ANNOTATION}}
-@RequestMapping(value = "{{FUNCTION_NAME}}", method = RequestMethod.{{REQUEST_TYPE}})
-public {{RETURN_TYPE}} {{FUNCTION_NAME}}({{PARAMETER}}) {{BODY}}

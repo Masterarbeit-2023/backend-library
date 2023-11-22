@@ -3,10 +3,7 @@ package io.github.masterarbeit.generator.files;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -55,6 +52,22 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                     parameters.append(", ");
                                 }
                                 parameters.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
+                                if (configuration.getProvider().equals(ProviderEnum.AWS) && method.getParameters().size() >= 2) {
+                                    FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(new NameExpr("tmpClass"), parameterDecl.getName());
+                                    VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
+                                            new VariableDeclarator(
+                                                    new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
+                                                    parameterDecl.getName(),
+                                                    fieldAccessExpr
+                                            )
+                                    );
+                                    BlockStmt block = new BlockStmt();
+                                    block.addStatement(new ExpressionStmt(varDecl));
+                                    for (Statement stmt : body.getStatements()) {
+                                        block.addStatement(stmt);
+                                    }
+                                    body = block;
+                                }
                             } else {
                                 if (configuration.getProvider().equals(ProviderEnum.AZURE)) {
                                     MethodCallExpr getOrDefaultCall = new MethodCallExpr(
@@ -80,7 +93,20 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                     body = block;
                                 } else if (configuration.getProvider().equals(ProviderEnum.AWS)) {
                                     parameterTypes.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName()).append(";\n");
-                                    // TODO Parameter auslesen wie bei Azure
+                                    FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(new NameExpr("tmpClass"), parameterDecl.getName());
+                                    VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
+                                            new VariableDeclarator(
+                                                    new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
+                                                    parameterDecl.getName(),
+                                                    fieldAccessExpr
+                                            )
+                                    );
+                                    BlockStmt block = new BlockStmt();
+                                    block.addStatement(new ExpressionStmt(varDecl));
+                                    for (Statement stmt : body.getStatements()) {
+                                        block.addStatement(stmt);
+                                    }
+                                    body = block;
                                 }
                             }
                         }

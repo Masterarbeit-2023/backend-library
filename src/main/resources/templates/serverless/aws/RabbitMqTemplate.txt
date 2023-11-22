@@ -9,8 +9,6 @@ public class {{CLASS_NAME}} implements RequestHandler<SQSEvent, Void> {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
     @Override
         public Void handleRequest(SQSEvent event, Context context) {
             for (SQSEvent.SQSMessage msg : event.getRecords()) {

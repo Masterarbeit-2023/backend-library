@@ -9,8 +9,6 @@ public class {{CLASS_NAME}} {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
     @FunctionName("{{NAME}}")
     public void {{NAME}}(
       @TimerTrigger(name = "{{NAME}}", schedule = {{SCHEDULE}}) String timerInfo,

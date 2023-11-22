@@ -6,14 +6,12 @@ import com.amazonaws.services.lambda.runtime.Context;
 
 public class {{CLASS_NAME}} RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
 
-    {{FIELDS}}
+    {{PRIVATE_CLASS}}
 
-    {{METHODS}}
+    {{FIELDS}}
 
     @Override
       public {{RETURN_TYPE}} handleRequest({{PARAMETER}}, Context context)
-      {
-        {{BODY}}
-      }
+      {{BODY}}
 
 }

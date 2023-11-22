@@ -9,16 +9,14 @@ public class {{CLASS_NAME}} {
 
     {{FIELDS}}
 
-    {{METHODS}}
-
     @FunctionName("{{NAME}}")
     public HttpResponseMessage {{NAME}}(
             @HttpTrigger(name = "req",
-                methods = {"{{HTTP_METHOD}}"},
+                methods = {"HttpMethod.{{HTTP_METHOD}}"},
                 authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<{{PARAMETER}}> request,
-            final ExecutionContext context) {
-        {{BODY}}
-    }
+            HttpRequestMessage<Optional<{{PARAMETER_TYPE}}> request,
+            final ExecutionContext context)
+            {{BODY}}
+
 
 }

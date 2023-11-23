@@ -75,7 +75,7 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
                     map.put("BODY", body.toString());
                     Writer.writeStringToJavaFile(
                             fileContent,
-                            Paths.get(pairs.getSecond() + "/" + project.getName() + ".java")
+                            Paths.get(pairs.getSecond() + "/" + clazz.getName() + ".java")
                     );
                 }
             }

@@ -50,6 +50,8 @@ public class ClassDeclaration {
 
         clazz.setName(name);
         clazz.setPackageDeclaration(packageDeclaration);
+        clazz.setInterface(isInterface);
+        clazz.setOtherClass(isOtherClass);
         clazz.setImports(combineWithoutDuplicates(imports, tmpClass.imports));
         clazz.setAnnotations(combineWithoutDuplicates(annotations, tmpClass.annotations));
         clazz.setExtendedTypes(combineWithoutDuplicates(extendedTypes, tmpClass.extendedTypes));

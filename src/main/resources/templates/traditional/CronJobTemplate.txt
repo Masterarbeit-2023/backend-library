@@ -1,0 +1,2 @@
+@Scheduled({{SCHEDULE_TYPE = {{CRON_STRING}})
+public void {{FUNCTION_NAME}}() {{BODY}}

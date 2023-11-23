@@ -1,0 +1,37 @@
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+import org.springframework.amqp.core.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+{{IMPORTS}}
+
+
+@Configuration
+public class RabbitMQ{{CLASS_NAME}}Config {
+
+    @Bean
+    Queue {{FUNCTION_NAME}}() {
+        return new Queue("{{FUNCTION_NAME}}", false);
+    }
+
+    @Bean
+    DirectExchange exchange() {
+        return new DirectExchange("{{EXCHANGE_NAME}}");
+    }
+
+    @Bean
+    Binding binding{{CLASS_NAME}}(Queue {{FUNCTION_NAME}}, DirectExchange exchange) {
+        return BindingBuilder.bind({{FUNCTION_NAME}}).to(exchange);
+    }
+}
+
+
+@Component
+public class RabbitMQ{{CLASS_NAME}}Listeners {
+
+    {{FIELDS}}
+
+    @RabbitListener(queues = "{{FUNCTION_NAME}}")
+    public void receiveMessageFromQueue({{PARAMETER}}) {{BODY}}
+}

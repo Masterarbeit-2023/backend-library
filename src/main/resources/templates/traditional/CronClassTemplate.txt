@@ -1,0 +1,13 @@
+package com.example;
+
+{{IMPORTS}}
+
+
+public class {{CLASS_NAME}} {
+
+    {{FIELDS}}
+
+    @Scheduled({{SCHEDULE_TYPE}} = {{CRON_STRING}})
+    public void {{FUNCTION_NAME}}() {{BODY}}
+
+}

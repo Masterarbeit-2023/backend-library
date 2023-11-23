@@ -70,6 +70,7 @@ public class Writer {
         Writer.writeStringToJavaFile(processedTemplate, savePath);
     }
 
+
     public static void generateOtherClassAndSaveFile(Map<String, String> values, Path savePath) {
         Resource resource = new ClassPathResource("templates/ClassTemplate.txt");
 

@@ -44,7 +44,7 @@ public class Writer {
         return true;
     }
 
-    public static boolean writeStringToJavaFile(String content, Path savePath) {
+    public static boolean writeStringToFile(String content, Path savePath) {
         try {
             Files.write(savePath, content.getBytes());
             return true;
@@ -67,7 +67,7 @@ public class Writer {
 
         String processedTemplate = TemplateProcessor.processTemplate(template, values);
 
-        Writer.writeStringToJavaFile(processedTemplate, savePath);
+        Writer.writeStringToFile(processedTemplate, savePath);
     }
 
 
@@ -84,7 +84,7 @@ public class Writer {
 
         String processedTemplate = TemplateProcessor.processTemplate(template, values);
 
-        Writer.writeStringToJavaFile(processedTemplate, savePath);
+        Writer.writeStringToFile(processedTemplate, savePath);
     }
 
     public static void generateDockerfile(Path path) {
@@ -99,7 +99,7 @@ public class Writer {
         }
 
         String processedTemplate = TemplateProcessor.processTemplate(template, new HashMap<>());
-        Writer.writeStringToJavaFile(processedTemplate, path);
+        Writer.writeStringToFile(processedTemplate, path);
     }
 
     public void generateDockerCompose(Path path) {
@@ -115,7 +115,7 @@ public class Writer {
         }
 
         String processedTemplate = TemplateProcessor.processTemplate(template, new HashMap<>());
-        Writer.writeStringToJavaFile(processedTemplate, path);
+        Writer.writeStringToFile(processedTemplate, path);
     }
 
 

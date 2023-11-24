@@ -77,6 +77,7 @@ public class ProjectGenerator {
         newPom.setArtifactId(method.getName());
         newPom.setDependencies(getNeededDependencies(newProject, newPom.getDependencies()));
         newProject.setPom(newPom);
+        newProject.setProperties(method.getClazz().getProject().getProperties());
 
         return newProject;
     }

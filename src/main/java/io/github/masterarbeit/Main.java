@@ -20,7 +20,7 @@ public class Main {
         System.out.println(configuration);
         project = Reader.readProject(projectRoot, classToIgnored);
         List<ProjectDeclaration> generatedProjects = new ProjectGenerator().generate(project, configuration);
-        System.out.println(generatedProjects);
+        System.out.println();
         ProjectFileGenerator.generateFiles(generatedProjects, configuration);
         System.out.println();
     }

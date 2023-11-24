@@ -19,7 +19,7 @@ public class ProjectDeclaration {
     String name;
     List<ClassDeclaration> classDeclarations = new ArrayList<>();
     Model pom;
-
+    List<Pair<String, String>> properties = new ArrayList<>();
 
     public void addClassDeclaration(ClassDeclaration classDeclaration) {
         classDeclarations.add(classDeclaration);

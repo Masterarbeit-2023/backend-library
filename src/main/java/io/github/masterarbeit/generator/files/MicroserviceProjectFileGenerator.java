@@ -9,6 +9,7 @@ import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.RabbitMqMethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.TimerMethodDeclaration;
 import io.github.masterarbeit.util.StringUtil;
+import org.apache.maven.model.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
@@ -73,13 +74,43 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
                     map.put("PARAMETER", parameters.toString());
                     map.put("PARAMETER_TYPE", parameterType);
                     map.put("BODY", body.toString());
-                    Writer.writeStringToJavaFile(
+                    Writer.writeStringToFile(
                             fileContent,
                             Paths.get(pairs.getSecond() + "/" + clazz.getName() + ".java")
                     );
                 }
             }
-            Writer.writePomXml(pairs.getFirst() + File.separator + "pom.xml", project.getPom());
+            creatMainClass(pairs.getSecond() + "/MainApplication.java");
+            createPropertiesFiles(project.getProperties(), pairs.getFirst() + "/src/main/resources");
+
+            Dependency springBootStarterDependency = new Dependency();
+            springBootStarterDependency.setGroupId("org.springframework.boot");
+            springBootStarterDependency.setArtifactId("spring-boot-starter");
+            springBootStarterDependency.setVersion("2.7.0");
+
+            Model pom = project.getPom();
+            pom.addDependency(springBootStarterDependency);
+
+            Plugin shadePlugin = new Plugin();
+            shadePlugin.setGroupId("org.apache.maven.plugins");
+            shadePlugin.setArtifactId("maven-shade-plugin");
+            shadePlugin.setVersion("3.2.4"); // specify the version you need
+
+            // Plugin configuration (if needed)
+            PluginExecution pluginExecution = new PluginExecution();
+            pluginExecution.setPhase("package");
+            pluginExecution.addGoal("shade");
+            shadePlugin.addExecution(pluginExecution);
+
+            // Add plugin to the build
+            Build build = pom.getBuild();
+            if (build == null) {
+                build = new Build();
+                pom.setBuild(build);
+            }
+            build.addPlugin(shadePlugin);
+
+            Writer.writePomXml(pairs.getFirst() + File.separator + "pom.xml", pom);
         }
     }
 
@@ -136,6 +167,24 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
         }
 
         return TemplateProcessor.processTemplate(template, values);
+    }
+
+    private void creatMainClass(String path) {
+        Resource resource = new ClassPathResource("templates/traditional/MainClassTemplate.txt");
+
+
+        String template = null;
+        try {
+            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            template = new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Writer.writeStringToFile(
+                TemplateProcessor.processTemplate(template, new HashMap<String, String>()),
+                Paths.get(path)
+        );
     }
 
     private void generateDockerfile() {

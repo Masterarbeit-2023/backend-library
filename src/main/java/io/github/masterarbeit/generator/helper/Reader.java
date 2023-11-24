@@ -20,10 +20,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 public class Reader {
 
@@ -46,6 +45,7 @@ public class Reader {
         Model model = readPomXml("pom.xml");
         project.setPom(model);
         project.setName(model.getName());
+        project.setProperties(Reader.readPropertyFiles());
 
         // Read all existing classes
         List<Class<?>> classes = readAllClasses("src", classToIgnored);
@@ -59,7 +59,7 @@ public class Reader {
 
     public static List<Class<?>> readAllClasses(String packageName, String classToIgnored) {
         List<Class<?>> allClasses = new ArrayList<>();
-        File[] files = getAllFilesInPackage(packageName);
+        File[] files = Arrays.stream(getAllFilesInPackage(packageName)).filter(value -> !value.getPath().contains("src\\main\\resources")).toList().toArray(new File[0]);
         if (files == null) {
             return allClasses;
         }
@@ -177,5 +177,22 @@ public class Reader {
         } catch (FileNotFoundException e) {
             return null;
         }
+    }
+
+    public static List<Pair<String, String>> readPropertyFiles() {
+        File[] files = getAllFilesInPackage("src\\main\\resources");
+        List<Pair<String, String>> properties = new ArrayList<>();
+
+        for (File file : files) {
+            String name = file.getName();
+            if (name.contains(".properties") || name.contains("application") && (name.contains(".yaml") || name.contains(".yml"))) {
+                try {
+                    properties.add(new Pair<>(name, Files.readString(Path.of(file.getPath()))));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return properties;
     }
 }

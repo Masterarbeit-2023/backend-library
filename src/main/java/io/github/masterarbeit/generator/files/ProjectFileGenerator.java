@@ -1,13 +1,11 @@
 package io.github.masterarbeit.generator.files;
 
 import io.github.masterarbeit.generator.config.Configuration;
-import io.github.masterarbeit.generator.helper.ClassDeclaration;
-import io.github.masterarbeit.generator.helper.FieldDeclaration;
-import io.github.masterarbeit.generator.helper.ProjectDeclaration;
-import io.github.masterarbeit.generator.helper.Writer;
+import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.util.Constants;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +36,13 @@ public abstract class ProjectFileGenerator {
             for (int i = 0; i < extendedTypes.size(); i++) {
                 s += extendedTypes.get(i) + (i == extendedTypes.size() - 1 ? "" : ", ");
             }
+            if (extendedTypes.size() == 0) {
+                s = "";
+            }
             values.put("EXTENDED_TYPE", s);
         }
         // FIELDS
-        values.put("FIELDS", "");
+        values.put("FIELDS", fieldsToString(clazz.getFields()));
         // METHODS
         values.put("METHODS", "");
 
@@ -80,8 +81,15 @@ public abstract class ProjectFileGenerator {
         StringBuilder tmpString = new StringBuilder();
 
         for (String s : annotations) {
-            tmpString.append("@ ").append(s).append("\n");
+            tmpString.append("@").append(s).append("\n");
         }
         return tmpString.toString();
+    }
+
+    public void createPropertiesFiles(List<Pair<String, String>> properties, String propertiesPath) {
+        new File(propertiesPath).mkdirs();
+        for (Pair<String, String> property : properties) {
+            Writer.writeStringToFile(property.getSecond(), Path.of(propertiesPath + File.separator + property.getFirst()));
+        }
     }
 }

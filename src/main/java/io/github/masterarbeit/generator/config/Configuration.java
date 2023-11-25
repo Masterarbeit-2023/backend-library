@@ -26,11 +26,9 @@ public class Configuration {
     Map<String, Function> functions;
 
     public Function getConfigurationForFunction(String functionName) {
-        Function function = null;
-        try {
-            function = functions.get(functionName);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Function function = functions.get(functionName);
+
+        if (function == null) {
             function = new Function(provider, authentication);
         }
 

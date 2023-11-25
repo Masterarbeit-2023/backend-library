@@ -26,6 +26,9 @@ public class Configuration {
     Map<String, Function> functions;
 
     public Function getConfigurationForFunction(String functionName) {
+        if (project_config.equals("yes")) {
+            return new Function(provider, authentication);
+        }
         Function function = functions.get(functionName);
 
         if (function == null) {

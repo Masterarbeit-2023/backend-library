@@ -54,6 +54,14 @@ public class HttpMethodDeclaration extends MethodDeclaration {
         return "TmpClass";
     }
 
+    private String readOutVariables() {
+        return "";
+    }
+
+    private String addReturnStatement() {
+        return "";
+    }
+
     public String getPrivateClassForTemplate() {
         return "";
     }

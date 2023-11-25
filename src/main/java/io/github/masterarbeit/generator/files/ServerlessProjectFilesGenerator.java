@@ -37,6 +37,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     StringBuilder parameters = new StringBuilder();
                     String parameterType = "";
                     String tmpClass = "";
+                    method.setClazz(clazz);
                     BlockStmt body = clazz.getMethods().get(0).getBody();
                     if (method instanceof HttpMethodDeclaration) {
                         map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
@@ -134,14 +135,17 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     map.put("PARAMETER", parameters.toString());
                     map.put("PARAMETER_TYPE", parameterType);
                     map.put("BODY", body.toString());
+
                     Writer.generateServerlessTemplateAndSaveFile(
                             configuration.getProvider(),
-                            pair.getFirst(),
+                            method.getRequestTypeAndAnnotation().getFirst(),
                             map,
-                            Paths.get(pairs.getSecond() + "/" + project.getName() + ".java")
+                            Paths.get(pairs.getSecond() + "/" + StringUtil.capitalize(project.getName()) + ".java")
                     );
                 }
             }
+
+            generateOtherClasses(project.getOtherClasses(), pairs.getSecond());
             Writer.writePomXml(pairs.getFirst() + File.separator + "pom.xml", project.getPom());
         }
     }

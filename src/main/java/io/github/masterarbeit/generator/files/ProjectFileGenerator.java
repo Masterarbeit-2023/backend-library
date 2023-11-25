@@ -22,6 +22,16 @@ public abstract class ProjectFileGenerator {
         }
     }
 
+    public static void generateProjectFiles(List<ProjectDeclaration> projects, Configuration configuration) {
+        for (ProjectDeclaration project : projects) {
+            switch (configuration.getConfigurationForFunction(project.getName()).getInfrastructure()) {
+                case TRADITIONAL, MICROSERVICES ->
+                        new MicroserviceProjectFileGenerator().generate(List.of(project), configuration);
+                case SERVERLESS -> new ServerlessProjectFilesGenerator().generate(projects, configuration);
+            }
+        }
+    }
+
     protected void generateOtherClass(ClassDeclaration clazz, String pathBasePackage) {
         Map<String, String> values = new HashMap<>();
 

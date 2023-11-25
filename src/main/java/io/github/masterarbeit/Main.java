@@ -21,7 +21,7 @@ public class Main {
         project = Reader.readProject(projectRoot, classToIgnored);
         List<ProjectDeclaration> generatedProjects = new ProjectGenerator().generate(project, configuration);
         System.out.println();
-        ProjectFileGenerator.generateFiles(generatedProjects, configuration);
+        ProjectFileGenerator.generateProjectFiles(generatedProjects, configuration);
         System.out.println();
     }
 }

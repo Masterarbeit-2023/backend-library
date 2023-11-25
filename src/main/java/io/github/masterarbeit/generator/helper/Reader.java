@@ -51,8 +51,30 @@ public class Reader {
         List<Class<?>> classes = readAllClasses("src", classToIgnored);
 
         // Read all ClassDefinitions of Classes
-        List<ClassDeclaration> classDefinitions = classes.stream().map(clazz -> readClassDefinitionOfClass(clazz, project)).toList();
+        List<ClassDeclaration> classDefinitions = classes.stream().filter(value -> {
+            try {
+                return Files.readString(Path.of("src/main/java/" + value.getName().replace('.', '/') + ".java")).contains("ApiFunction");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).map(clazz -> readClassDefinitionOfClass(clazz, project)).toList();
+
+        List<OtherClass> otherClasses = classes.stream().filter(value -> {
+            try {
+                return !Files.readString(Path.of("src/main/java/" + value.getName().replace('.', '/') + ".java")).contains("ApiFunction");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).map(clazz -> {
+            try {
+                return new OtherClass(clazz.getPackageName(), clazz.getName().replace(clazz.getPackageName(), "").replace(".", ""), Files.readString(Path.of("src/main/java/" + clazz.getName().replace('.', '/') + ".java")));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
         project.setClassDeclarations(classDefinitions);
+        project.setOtherClasses(otherClasses);
 
         return project;
     }

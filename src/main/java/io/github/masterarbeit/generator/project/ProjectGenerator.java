@@ -71,7 +71,7 @@ public class ProjectGenerator {
 
         newClass.addMethod(newMethod);
         newProject.addClassDeclaration(newClass);
-        createNeededClasses(imports, newProject).forEach(newProject::addClassDeclaration);
+        createNeededClasses(imports, newProject).forEach(newProject::addOtherClass);
         Model newPom = method.getClazz().getProject().getPom().clone();
         newPom.setName(method.getName());
         newPom.setArtifactId(method.getName());
@@ -103,17 +103,14 @@ public class ProjectGenerator {
         return false;
     }
 
-    protected List<ClassDeclaration> createNeededClasses(List<String> imports, ProjectDeclaration project) {
+    protected List<OtherClass> createNeededClasses(List<String> imports, ProjectDeclaration project) {
         List<String> classesToCreate = imports.stream().filter(value -> value.contains("com.example")).map(value -> value.replace("com.example.", "")).toList();
-        List<ClassDeclaration> createdClasses = new ArrayList<>();
+        List<OtherClass> createdClasses = new ArrayList<>();
 
         for (String s : classesToCreate) {
             String[] arr = s.split("\\.");
-            ClassDeclaration clazz = Main.project.getClassDeclarationsByName(arr[arr.length - 1]);
-            if (project.getClassDeclarationsByName(clazz.getName()) == null) {
-                clazz.setPackageDeclaration(clazz.getPackageDeclaration().replace(Main.configuration.getBase_package(), "com.example"));
-                clazz.setProject(null);
-                clazz.setOtherClass(true);
+            OtherClass clazz = Main.project.getOtherClassByName(arr[arr.length - 1]);
+            if (clazz != null) {
                 createdClasses.add(clazz);
             }
         }

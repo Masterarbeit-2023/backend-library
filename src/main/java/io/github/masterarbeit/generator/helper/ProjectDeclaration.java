@@ -18,11 +18,16 @@ import java.util.Map;
 public class ProjectDeclaration {
     String name;
     List<ClassDeclaration> classDeclarations = new ArrayList<>();
+    List<OtherClass> otherClasses = new ArrayList<>();
     Model pom;
     List<Pair<String, String>> properties = new ArrayList<>();
 
     public void addClassDeclaration(ClassDeclaration classDeclaration) {
         classDeclarations.add(classDeclaration);
+    }
+
+    public void addOtherClass(OtherClass otherClass) {
+        otherClasses.add(otherClass);
     }
 
     public Pair<RequestType, Annotation> getRequestTypeAndAnnotationByMethodName(String functionName) {
@@ -40,6 +45,15 @@ public class ProjectDeclaration {
         for (ClassDeclaration clazz : classDeclarations) {
             if (clazz.getName().equals(s)) {
                 return clazz;
+            }
+        }
+        return null;
+    }
+
+    public OtherClass getOtherClassByName(String name) {
+        for (OtherClass otherClass : otherClasses) {
+            if (otherClass.getClassName().equals(name)) {
+                return otherClass;
             }
         }
         return null;

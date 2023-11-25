@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 {{IMPORTS}}
 
-public class {{CLASS_NAME}} RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
+public class {{CLASS_NAME}} extends RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
 
     {{PRIVATE_CLASS}}
 

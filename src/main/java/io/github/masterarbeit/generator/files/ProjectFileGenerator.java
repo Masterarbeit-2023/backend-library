@@ -7,10 +7,7 @@ import io.github.masterarbeit.util.Constants;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class ProjectFileGenerator {
 
@@ -32,41 +29,6 @@ public abstract class ProjectFileGenerator {
         }
     }
 
-    protected void generateOtherClass(ClassDeclaration clazz, String pathBasePackage) {
-        Map<String, String> values = new HashMap<>();
-
-        String packageString = clazz.getPackageDeclaration();
-        values.put("PACKAGE", packageString);
-        values.put("IMPORTS", importsToString(clazz.getImports()));
-        values.put("ANNOTATIONS", annotationsToString(clazz.getAnnotations()));
-        values.put("TYPE", clazz.isInterface() ? "interface" : "class");
-        values.put("CLASS_NAME", clazz.getName());
-        if (clazz.getExtendedTypes() != null) {
-            List<String> extendedTypes = clazz.getExtendedTypes();
-            String s = "extends ";
-            for (int i = 0; i < extendedTypes.size(); i++) {
-                s += extendedTypes.get(i) + (i == extendedTypes.size() - 1 ? "" : ", ");
-            }
-            if (extendedTypes.size() == 0) {
-                s = "";
-            }
-            values.put("EXTENDED_TYPE", s);
-        }
-        // FIELDS
-        values.put("FIELDS", fieldsToString(clazz.getFields()));
-        // METHODS
-        values.put("METHODS", "");
-
-        File directory = new File(pathBasePackage + packageString.replace(Constants.GENERATED_PROJECTS_BASE_PACKAGE, "").replace(".", "/"));
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        Writer.generateOtherClassAndSaveFile(
-                values,
-                Paths.get(directory.getPath() + "/" + clazz.getName() + ".java")
-        );
-    }
 
     protected void generateOtherClasses(List<OtherClass> otherClasses, String basePackageString) {
         for (OtherClass clazz : otherClasses) {

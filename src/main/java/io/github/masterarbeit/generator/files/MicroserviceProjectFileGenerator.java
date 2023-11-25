@@ -28,57 +28,53 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
             Pair<String, String> pairs = Writer.generateProjectFolders(project.getName());
             for (ClassDeclaration clazz : project.getClassDeclarations()) {
                 String fileContent = "";
-                if (clazz.isOtherClass()) {
-                    generateOtherClass(clazz, pairs.getSecond());
-                } else {
-                    MethodDeclaration method = clazz.getMethods().get(0);
-                    Map<String, String> map = new HashMap<>();
-                    StringBuilder parameters = new StringBuilder();
-                    String parameterType = "";
-                    BlockStmt body = clazz.getMethods().get(0).getBody();
-                    if (method instanceof HttpMethodDeclaration) {
-                        map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
-                        map.put("RETURN_TYPE", method.getReturnType());
+                MethodDeclaration method = clazz.getMethods().get(0);
+                Map<String, String> map = new HashMap<>();
+                StringBuilder parameters = new StringBuilder();
+                String parameterType = "";
+                BlockStmt body = clazz.getMethods().get(0).getBody();
+                if (method instanceof HttpMethodDeclaration) {
+                    map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
+                    map.put("RETURN_TYPE", method.getReturnType());
 
-                        for (ParameterDeclaration parameterDecl : method.getParameters()) {
-                            if (!parameters.toString().isBlank()) {
-                                parameters.append(", ");
-                            }
-                            if (!parameterDecl.getAnnotation().contains("ApiPathVariable")) {
-                                parameters.append("@RequestBody ").append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
-                            } else {
-                                parameters.append("@RequestParam ").append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
-                            }
+                    for (ParameterDeclaration parameterDecl : method.getParameters()) {
+                        if (!parameters.toString().isBlank()) {
+                            parameters.append(", ");
                         }
-                        String functionName = StringUtil.firstCharToLowercase(clazz.getName());
-                        fileContent = generateHttpString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), functionName, ((HttpMethodDeclaration) method).getRequestType().toString(), method.getReturnType(), parameters.toString(), method.getBody().toString());
+                        if (!parameterDecl.getAnnotation().contains("ApiPathVariable")) {
+                            parameters.append("@RequestBody ").append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
+                        } else {
+                            parameters.append("@RequestParam ").append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
+                        }
                     }
-                    if (method instanceof TimerMethodDeclaration) {
-                        map.put("SCHEDULE", ((TimerMethodDeclaration) method).getCron());
-                        map.put("RATE", "" + ((TimerMethodDeclaration) method).getRate());
-
-                        String scheduleType = ((TimerMethodDeclaration) method).getCron() != null ? "cron" : "fixedRate";
-                        String cronString = ((TimerMethodDeclaration) method).getCron() != null ? ((TimerMethodDeclaration) method).getCron() : "" + ((TimerMethodDeclaration) method).getRate();
-                        fileContent = generateCronString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), scheduleType, cronString, method.getBody().toString());
-                    }
-                    if (method instanceof RabbitMqMethodDeclaration) {
-                        map.put("CONNECTION_STRING_SETTING", "");
-                        map.put("QUEUE", ((RabbitMqMethodDeclaration) method).getTopicName());
-                        map.put("SCHEDULE", ((RabbitMqMethodDeclaration) method).getMessage());
-                        fileContent = generateRabbitMqString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), "", "", method.getBody().toString());
-                    }
-                    map.put("IMPORTS", importsToString(clazz.getImports()));
-                    map.put("CLASS_NAME", clazz.getName());
-                    map.put("FIELDS", fieldsToString(clazz.getFields()));
-                    map.put("NAME", clazz.getName());
-                    map.put("PARAMETER", parameters.toString());
-                    map.put("PARAMETER_TYPE", parameterType);
-                    map.put("BODY", body.toString());
-                    Writer.writeStringToFile(
-                            fileContent,
-                            Paths.get(pairs.getSecond() + "/" + clazz.getName() + ".java")
-                    );
+                    String functionName = StringUtil.firstCharToLowercase(clazz.getName());
+                    fileContent = generateHttpString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), functionName, ((HttpMethodDeclaration) method).getRequestType().toString(), method.getReturnType(), parameters.toString(), method.getBody().toString());
                 }
+                if (method instanceof TimerMethodDeclaration) {
+                    map.put("SCHEDULE", ((TimerMethodDeclaration) method).getCron());
+                    map.put("RATE", "" + ((TimerMethodDeclaration) method).getRate());
+
+                    String scheduleType = ((TimerMethodDeclaration) method).getCron() != null ? "cron" : "fixedRate";
+                    String cronString = ((TimerMethodDeclaration) method).getCron() != null ? ((TimerMethodDeclaration) method).getCron() : "" + ((TimerMethodDeclaration) method).getRate();
+                    fileContent = generateCronString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), scheduleType, cronString, method.getBody().toString());
+                }
+                if (method instanceof RabbitMqMethodDeclaration) {
+                    map.put("CONNECTION_STRING_SETTING", "");
+                    map.put("QUEUE", ((RabbitMqMethodDeclaration) method).getTopicName());
+                    map.put("SCHEDULE", ((RabbitMqMethodDeclaration) method).getMessage());
+                    fileContent = generateRabbitMqString(clazz.getName(), importsToString(clazz.getImports()), fieldsToString(clazz.getFields()), "", "", method.getBody().toString());
+                }
+                map.put("IMPORTS", importsToString(clazz.getImports()));
+                map.put("CLASS_NAME", clazz.getName());
+                map.put("FIELDS", fieldsToString(clazz.getFields()));
+                map.put("NAME", clazz.getName());
+                map.put("PARAMETER", parameters.toString());
+                map.put("PARAMETER_TYPE", parameterType);
+                map.put("BODY", body.toString());
+                Writer.writeStringToFile(
+                        fileContent,
+                        Paths.get(pairs.getSecond() + "/" + clazz.getName() + ".java")
+                );
             }
 
             generateOtherClasses(project.getOtherClasses(), pairs.getSecond());

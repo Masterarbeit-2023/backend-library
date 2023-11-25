@@ -14,7 +14,7 @@ public class {{CLASS_NAME}} {
             @HttpTrigger(name = "req",
                 methods = {"HttpMethod.{{HTTP_METHOD}}"},
                 authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<{{PARAMETER_TYPE}}> request,
+            HttpRequestMessage<Optional<{{PARAMETER_TYPE}}>> request,
             final ExecutionContext context)
             {{BODY}}
 

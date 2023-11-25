@@ -68,6 +68,10 @@ public class ProjectDeclaration {
         List<ClassDeclaration> newClasses = combineClasses(project.classDeclarations);
         newProject.setClassDeclarations(newClasses);
 
+
+        List<OtherClass> newOtherClasses = combineOtherClasses(project.otherClasses);
+        newProject.setOtherClasses(newOtherClasses);
+
         return newProject;
     }
 
@@ -97,6 +101,23 @@ public class ProjectDeclaration {
         // Process List B
         for (ClassDeclaration item : classes) {
             nameMap.merge(item.name, item, ClassDeclaration::combine);
+        }
+
+        // Convert map values to a list
+        return new ArrayList<>(nameMap.values());
+    }
+
+    private List<OtherClass> combineOtherClasses(List<OtherClass> classes) {
+        Map<String, OtherClass> nameMap = new HashMap<>();
+
+        // Process List A
+        for (OtherClass item : otherClasses) {
+            nameMap.putIfAbsent(item.getPackageName() + "." + item.className, item);
+        }
+
+        // Process List B
+        for (OtherClass item : classes) {
+            nameMap.putIfAbsent(item.getPackageName() + "." + item.className, item);
         }
 
         // Convert map values to a list

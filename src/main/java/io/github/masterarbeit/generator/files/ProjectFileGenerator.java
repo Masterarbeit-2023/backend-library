@@ -1,5 +1,6 @@
 package io.github.masterarbeit.generator.files;
 
+import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.Configuration;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.util.Constants;
@@ -55,6 +56,27 @@ public abstract class ProjectFileGenerator {
                 values,
                 Paths.get(directory.getPath() + "/" + clazz.getName() + ".java")
         );
+    }
+
+    protected void generateOtherClasses(List<OtherClass> otherClasses, String basePackageString) {
+        for (OtherClass clazz : otherClasses) {
+            generateOtherClass(clazz, basePackageString);
+        }
+    }
+
+    protected void generateOtherClass(OtherClass clazz, String basePackageString) {
+        String basePackage = Main.configuration.getBase_package();
+        String directoryPath = basePackageString + clazz.getPackageName().replace(basePackage + ".", File.separator);
+        String filePath = directoryPath + File.separator + clazz.getClassName() + ".java";
+
+        if (!new File(directoryPath).exists()) {
+            new File(directoryPath).mkdirs();
+        }
+
+        String content = clazz.getContent().replace(basePackage.replace("\\", "."), Constants.GENERATED_PROJECTS_BASE_PACKAGE);
+
+        Writer.writeStringToFile(content, Path.of(filePath));
+
     }
 
     protected String importsToString(List<String> imports) {

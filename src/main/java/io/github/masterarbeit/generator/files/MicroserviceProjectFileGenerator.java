@@ -80,6 +80,9 @@ public class MicroserviceProjectFileGenerator extends ProjectFileGenerator {
                     );
                 }
             }
+
+            generateOtherClasses(project.getOtherClasses(), pairs.getSecond());
+
             creatMainClass(pairs.getSecond() + "/MainApplication.java");
             createPropertiesFiles(project.getProperties(), pairs.getFirst() + "/src/main/resources");
 

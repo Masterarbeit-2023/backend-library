@@ -4,6 +4,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import io.github.masterarbeit.Main;
 import io.github.masterarbeit.generator.config.Configuration;
+import io.github.masterarbeit.generator.config.Function;
 import io.github.masterarbeit.generator.config.Infrastructure;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.generator.helper.method.*;
@@ -14,6 +15,8 @@ import org.apache.maven.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static io.github.masterarbeit.util.Constants.*;
 
@@ -22,15 +25,33 @@ public class ProjectGenerator {
     public List<ProjectDeclaration> generate(ProjectDeclaration project, Configuration configuration) {
         List<ProjectDeclaration> newProjects = new ProjectGenerator().generateProjectDeclaration(project);
 
+        ProjectDeclaration azureProject = null;
+        ProjectDeclaration awsProject = null;
+        ProjectDeclaration googleProject = null;
+        ProjectDeclaration onPremisesProject = null;
+
         if (configuration.getInfrastructure() == Infrastructure.TRADITIONAL) {
-            ProjectDeclaration tmpProject = newProjects.get(0);
-            for (int i = 1; i < newProjects.size(); i++) {
-                tmpProject = tmpProject.combine(newProjects.get(i));
+            for (ProjectDeclaration p : newProjects) {
+                Function functionConfig = configuration.getConfigurationForFunction(p.getName());
+                switch (functionConfig.getProvider()) {
+                    case AZURE -> azureProject = combineProjectWithExistsCheck(azureProject, p);
+                    case AWS -> awsProject = combineProjectWithExistsCheck(awsProject, p);
+                    case GOOGLE -> googleProject = combineProjectWithExistsCheck(googleProject, p);
+                    case ON_PREMISES -> onPremisesProject = combineProjectWithExistsCheck(onPremisesProject, p);
+                }
             }
             newProjects.clear();
-            newProjects.add(tmpProject);
+            newProjects.addAll(Stream.of(azureProject, awsProject, googleProject, onPremisesProject).filter(Objects::nonNull).toList());
         }
+
         return newProjects;
+    }
+
+    public ProjectDeclaration combineProjectWithExistsCheck(ProjectDeclaration existsCheckProject, ProjectDeclaration projectToAdd) {
+        if (existsCheckProject != null) {
+            return existsCheckProject.combine(projectToAdd);
+        }
+        return projectToAdd;
     }
 
     public List<ProjectDeclaration> generateProjectDeclaration(ProjectDeclaration project) {

@@ -11,12 +11,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Function {
     ProviderEnum provider;
+    Infrastructure infrastructure;
     String authentication;
 
     @Override
     public String toString() {
         return "Function{" +
                 "provider=" + provider +
+                ", infra=" + infrastructure +
                 ", authentication='" + authentication + '\'' +
                 '}';
     }

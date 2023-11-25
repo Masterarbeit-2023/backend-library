@@ -27,12 +27,12 @@ public class Configuration {
 
     public Function getConfigurationForFunction(String functionName) {
         if (project_config.equals("yes")) {
-            return new Function(provider, authentication);
+            return new Function(provider, infrastructure, authentication);
         }
         Function function = functions.get(functionName);
 
         if (function == null) {
-            function = new Function(provider, authentication);
+            function = new Function(provider, infrastructure, authentication);
         }
 
         return function;

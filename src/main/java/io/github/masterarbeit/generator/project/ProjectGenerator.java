@@ -23,26 +23,29 @@ import static io.github.masterarbeit.util.Constants.*;
 public class ProjectGenerator {
 
     public List<ProjectDeclaration> generate(ProjectDeclaration project, Configuration configuration) {
-        List<ProjectDeclaration> newProjects = new ProjectGenerator().generateProjectDeclaration(project);
+        List<ProjectDeclaration> generatedProjects = new ProjectGenerator().generateProjectDeclaration(project);
 
         ProjectDeclaration azureProject = null;
         ProjectDeclaration awsProject = null;
         ProjectDeclaration googleProject = null;
         ProjectDeclaration onPremisesProject = null;
 
-        if (configuration.getInfrastructure() == Infrastructure.TRADITIONAL) {
-            for (ProjectDeclaration p : newProjects) {
-                Function functionConfig = configuration.getConfigurationForFunction(p.getName());
+        List<ProjectDeclaration> newProjects = new ArrayList<>();
+
+        for (ProjectDeclaration p : generatedProjects) {
+            Function functionConfig = configuration.getConfigurationForFunction(p.getName());
+            if (functionConfig.getInfrastructure() == Infrastructure.TRADITIONAL) {
                 switch (functionConfig.getProvider()) {
                     case AZURE -> azureProject = combineProjectWithExistsCheck(azureProject, p);
                     case AWS -> awsProject = combineProjectWithExistsCheck(awsProject, p);
                     case GOOGLE -> googleProject = combineProjectWithExistsCheck(googleProject, p);
                     case ON_PREMISES -> onPremisesProject = combineProjectWithExistsCheck(onPremisesProject, p);
                 }
+            } else {
+                newProjects.add(p);
             }
-            newProjects.clear();
-            newProjects.addAll(Stream.of(azureProject, awsProject, googleProject, onPremisesProject).filter(Objects::nonNull).toList());
         }
+        newProjects.addAll(Stream.of(azureProject, awsProject, googleProject, onPremisesProject).filter(Objects::nonNull).toList());
 
         return newProjects;
     }

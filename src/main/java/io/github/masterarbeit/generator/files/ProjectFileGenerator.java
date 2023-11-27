@@ -11,22 +11,16 @@ import java.util.List;
 
 public abstract class ProjectFileGenerator {
 
-    public static void generateFiles(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
+    public static void generateProjectFiles(List<ProjectDeclaration> generatedProjects, Configuration configuration) {
         switch (configuration.getInfrastructure()) {
-            case TRADITIONAL -> new MicroserviceProjectFileGenerator().generate(generatedProjects, configuration);
+            case TRADITIONAL -> new TraditionalProjectFileGenerator().generate(generatedProjects, configuration);
             case MICROSERVICES -> new MicroserviceProjectFileGenerator().generate(generatedProjects, configuration);
             case SERVERLESS -> new ServerlessProjectFilesGenerator().generate(generatedProjects, configuration);
         }
     }
 
-    public static void generateProjectFiles(List<ProjectDeclaration> projects, Configuration configuration) {
-        for (ProjectDeclaration project : projects) {
-            switch (configuration.getConfigurationForFunction(project.getName()).getInfrastructure()) {
-                case TRADITIONAL, MICROSERVICES ->
-                        new MicroserviceProjectFileGenerator().generate(List.of(project), configuration);
-                case SERVERLESS -> new ServerlessProjectFilesGenerator().generate(projects, configuration);
-            }
-        }
+    protected void generate(List<ProjectDeclaration> projects, Configuration configuration) {
+
     }
 
 

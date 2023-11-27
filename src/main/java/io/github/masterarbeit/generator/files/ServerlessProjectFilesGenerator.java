@@ -127,7 +127,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                 map.put("IMPORTS", importsToString(clazz.getImports()));
                 map.put("CLASS_NAME", clazz.getName());
                 map.put("FIELDS", fieldsToString(clazz.getFields()));
-                map.put("NAME", clazz.getName());
+                map.put("NAME", StringUtil.firstCharToLowercase(clazz.getName()));
                 map.put("PRIVATE_CLASS", tmpClass);
                 map.put("PARAMETER", parameters.toString());
                 map.put("PARAMETER_TYPE", parameterType);

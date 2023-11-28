@@ -3,16 +3,25 @@ package com.example;
 import java.util.*;
 import com.microsoft.azure.functions.annotation.*;
 import com.microsoft.azure.functions.*;
+import org.springframework.stereotype.Service;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 {{IMPORTS}}
 
+@Service
 public class {{CLASS_NAME}} {
+
+    private static final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringFunctionConfiguration.class);
 
     {{FIELDS}}
 
-    @FunctionName("{{NAME}}")
-    public HttpResponseMessage {{NAME}}(
+    {{DUMMY_CLASS}}
+
+    @FunctionName("{{FUNCTION_NAME}}")
+    public HttpResponseMessage {{FUNCTION_NAME}}(
             @HttpTrigger(name = "req",
-                methods = {"HttpMethod.{{HTTP_METHOD}}"},
+                methods = {HttpMethod.{{REQUEST_TYPE}}},
                 authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<Optional<{{PARAMETER_TYPE}}>> request,
             final ExecutionContext context)

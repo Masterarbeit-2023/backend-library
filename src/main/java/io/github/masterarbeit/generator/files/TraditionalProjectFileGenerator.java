@@ -97,7 +97,7 @@ public class TraditionalProjectFileGenerator extends ProjectFileGenerator {
         }
     }
 
-    private String generateHttpString(String className, String imports, String fields, String functionName, String requestType, String returnType, String params, String body) {
+    protected String generateHttpString(String className, String imports, String fields, String functionName, String requestType, String returnType, String params, String body) {
         Map<String, String> values = new HashMap<>();
         values.put("CLASS_NAME", className);
         values.put("IMPORTS", imports);
@@ -111,7 +111,7 @@ public class TraditionalProjectFileGenerator extends ProjectFileGenerator {
         return generateFileContent("templates/traditional/HttpClassTemplate.txt", values);
     }
 
-    private String generateCronString(String className, String imports, String fields, String scheduleType, String cronString, String body) {
+    protected String generateCronString(String className, String imports, String fields, String scheduleType, String cronString, String body) {
         Map<String, String> values = new HashMap<>();
         values.put("CLASS_NAME", className);
         values.put("IMPORTS", imports);
@@ -124,7 +124,7 @@ public class TraditionalProjectFileGenerator extends ProjectFileGenerator {
         return generateFileContent("templates/traditional/CronClassTemplate.txt", values);
     }
 
-    private String generateRabbitMqString(String className, String imports, String fields, String exchangeName, String parameter, String body) {
+    protected String generateRabbitMqString(String className, String imports, String fields, String exchangeName, String parameter, String body) {
         Map<String, String> values = new HashMap<>();
         values.put("CLASS_NAME", className);
         values.put("IMPORTS", imports);
@@ -135,21 +135,6 @@ public class TraditionalProjectFileGenerator extends ProjectFileGenerator {
         values.put("BODY", body);
 
         return generateFileContent("templates/traditional/EventClassTemplate.txt", values);
-    }
-
-    private String generateFileContent(String path, Map<String, String> values) {
-        Resource resource = new ClassPathResource(path);
-
-
-        String template = null;
-        try {
-            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            template = new String(bytes, "UTF-8");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return TemplateProcessor.processTemplate(template, values);
     }
 
     private void creatMainClass(String path) {

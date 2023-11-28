@@ -1,13 +1,19 @@
 package io.github.masterarbeit.generator.files;
 
 import io.github.masterarbeit.Main;
+import io.github.masterarbeit.generator.TemplateProcessor;
 import io.github.masterarbeit.generator.config.Configuration;
 import io.github.masterarbeit.generator.helper.*;
 import io.github.masterarbeit.util.Constants;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ProjectFileGenerator {
 
@@ -79,5 +85,21 @@ public abstract class ProjectFileGenerator {
         for (Pair<String, String> property : properties) {
             Writer.writeStringToFile(property.getSecond(), Path.of(propertiesPath + File.separator + property.getFirst()));
         }
+    }
+
+
+    protected String generateFileContent(String path, Map<String, String> values) {
+        Resource resource = new ClassPathResource(path);
+
+
+        String template = null;
+        try {
+            byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            template = new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return TemplateProcessor.processTemplate(template, values);
     }
 }

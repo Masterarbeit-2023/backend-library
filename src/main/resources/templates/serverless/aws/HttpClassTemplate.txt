@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 
 public class {{CLASS_NAME}} extends RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
 
-    {{PRIVATE_CLASS}}
+    {{DUMMY_CLASS}}
 
     {{FIELDS}}
 

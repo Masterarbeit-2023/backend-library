@@ -16,8 +16,10 @@ import io.github.masterarbeit.generator.helper.method.MethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.RabbitMqMethodDeclaration;
 import io.github.masterarbeit.generator.helper.method.TimerMethodDeclaration;
 import io.github.masterarbeit.util.StringUtil;
+import org.apache.maven.model.Dependency;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +32,124 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
             Pair<String, String> pairs = Writer.generateProjectFolders(project.getName());
             for (ClassDeclaration clazz : project.getClassDeclarations()) {
                 MethodDeclaration method = clazz.getMethods().get(0);
+                String fileContent = "";
                 Map<String, String> map = new HashMap<>();
                 StringBuilder parameters = new StringBuilder();
                 String parameterType = "";
                 String tmpClass = "";
                 method.setClazz(clazz);
                 BlockStmt body = clazz.getMethods().get(0).getBody();
+                String bodyString = "";
+
+                Dependency springContextDependency = new Dependency();
+                springContextDependency.setGroupId("org.springframework");
+                springContextDependency.setArtifactId("spring-context");
+                springContextDependency.setVersion("6.0.12");
+                project.getPom().addDependency(springContextDependency);
+
+                switch (Main.configuration.getConfigurationForFunction(method.getName()).getProvider()) {
+                    case AWS -> {
+
+                    }
+                    case AZURE -> {
+                        Dependency azureDependency = new Dependency();
+                        azureDependency.setGroupId("com.microsoft.azure.functions");
+                        azureDependency.setArtifactId("azure-functions-java-library");
+                        azureDependency.setVersion("3.0.0");
+                        project.getPom().addDependency(azureDependency);
+                    }
+                }
+
                 if (method instanceof HttpMethodDeclaration) {
+
+                    if (method.getParameters().stream().filter(value -> !value.isPathVariable()).count() > 1) {
+                        throw new RuntimeException("Es darf nicht mehr als ein Parameter vorhanden sein!");
+                    }
+
+                    List<ParameterDeclaration> params = method.getParameters().stream().filter(value -> !value.isPathVariable()).toList();
+
+                    List<ParameterDeclaration> apiParams = method.getParameters().stream().filter(ParameterDeclaration::isPathVariable).toList();
+
+                    String paramString = "";
+                    String paramTypeString = "";
+
+                    StringBuilder dummyClassStringBuilder = new StringBuilder();
+
+                    List<FieldDeclaration> fields = method.getClazz().getFields().stream().filter(FieldDeclaration::containsAnnotationAutowired).toList();
+                    StringBuilder fieldStringInsideBody = new StringBuilder();
+                    for (FieldDeclaration field : fields) {
+                        fieldStringInsideBody.append(field.getType()).append(" ").append(field.getName()).append(" = applicationContext.getBean(").append(field.getType()).append(".class);\n");
+                    }
+
+
+                    switch (Main.configuration.getConfigurationForFunction(method.getName()).getProvider()) {
+                        case AWS -> {
+                            if (params.size() + apiParams.size() > 1 || params.isEmpty() && apiParams.isEmpty()) {
+                                paramTypeString = clazz.getName() + ".DummyClass";
+                                dummyClassStringBuilder.append("class DummyClass {\n");
+                                for (ParameterDeclaration p : params) {
+                                    dummyClassStringBuilder.append(p.getType()).append(" ").append(p.getName()).append(";\n");
+                                }
+                                for (ParameterDeclaration p : apiParams) {
+                                    dummyClassStringBuilder.append(p.getType()).append(" ").append(p.getName()).append(";\n");
+                                }
+                                dummyClassStringBuilder.append("}");
+                                paramString = "DummyClass dummy";
+                            } else if (params.size() == 1) {
+                                paramTypeString = params.get(0).getType();
+                                paramString = params.get(0).getType() + " " + params.get(0).getName();
+                            }
+
+                        }
+                        case AZURE -> {
+                            paramTypeString = !params.isEmpty() ? params.get(0).getType() : "DummyClass";
+                            dummyClassStringBuilder = new StringBuilder("class DummyClass {}");
+                            for (ParameterDeclaration p : apiParams) {
+                                MethodCallExpr getOrDefaultCall = new MethodCallExpr(
+                                        new MethodCallExpr(new NameExpr("request"), "getQueryParameters"),
+                                        "getOrDefault",
+                                        new NodeList<>(
+                                                new NameExpr("\"" + p.getName() + "\""),
+                                                new StringLiteralExpr("")
+                                        )
+                                );
+                                VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
+                                        new VariableDeclarator(
+                                                new JavaParser().parseType(p.getType()).getResult().get(),
+                                                p.getName(),
+                                                getOrDefaultCall
+                                        )
+                                );
+                                BlockStmt block = new BlockStmt();
+                                block.addStatement(new ExpressionStmt(varDecl));
+                                for (Statement stmt : body.getStatements()) {
+                                    block.addStatement(stmt);
+                                }
+                                body = block;
+                            }
+                            bodyString = StringUtil.removeLastChar(body.toString());
+                            bodyString += "\n";
+                            if (method.getReturnType().equals("void")) {
+                                bodyString += "return request.createResponseBuilder(HttpStatus.OK).build();\n}";
+                            }
+                        }
+                    }
+
+                    bodyString = "{\n" + fieldStringInsideBody + StringUtil.removeFirstChar(bodyString);
+
+
+                    fileContent = generateHttpString(
+                            method.getClazz().getName(),
+                            importsToString(method.getClazz().getImports()),
+                            fieldsToString(method.getClazz().getFields().stream().filter(value -> !value.containsAnnotationAutowired()).toList()),
+                            method.getName(),
+                            ((HttpMethodDeclaration) method).getRequestType().toString(),
+                            method.getReturnType(),
+                            paramString,
+                            paramTypeString,
+                            dummyClassStringBuilder.toString(),
+                            bodyString
+                    );
                     map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
                     map.put("RETURN_TYPE", method.getReturnType());
                     List<ParameterDeclaration> paramDecl = method.getParameters().stream().filter(value -> !value.isPathVariable()).toList();
@@ -72,7 +185,7 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                         new MethodCallExpr(new NameExpr("request"), "getQueryParameters"),
                                         "getOrDefault",
                                         new NodeList<>(
-                                                new NameExpr(parameterDecl.getName()),
+                                                new NameExpr("\"" + parameterDecl.getName() + "\""),
                                                 new StringLiteralExpr("")
                                         )
                                 );
@@ -110,9 +223,16 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     }
                     tmpClass = "private class TmpClass {\n" + parameterTypes + parameterType + " " + StringUtil.firstCharToLowercase(parameterType) + ";\n}";
                 }
+
                 if (method instanceof TimerMethodDeclaration) {
-                    map.put("SCHEDULE", ((TimerMethodDeclaration) method).getCron());
-                    map.put("RATE", "" + ((TimerMethodDeclaration) method).getRate());
+
+                    fileContent = generateCronString(
+                            clazz.getName(),
+                            importsToString(clazz.getImports()),
+                            fieldsToString(clazz.getFields()),
+                            ((TimerMethodDeclaration) method).getCron(),
+                            method.getBody().toString()
+                    );
                 }
                 if (method instanceof RabbitMqMethodDeclaration) {
                     map.put("CONNECTION_STRING_SETTING", "");
@@ -133,16 +253,106 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                 map.put("PARAMETER_TYPE", parameterType);
                 map.put("BODY", body.toString());
 
+                Writer.writeStringToFile(
+                        fileContent,
+                        Paths.get(pairs.getSecond() + "/" + clazz.getName() + ".java")
+                );
+
+                generateConfiguration(project.getOtherClasses(), pairs.getSecond());
+
+                /*
                 Writer.generateServerlessTemplateAndSaveFile(
                         configuration.getProvider(),
                         method.getRequestTypeAndAnnotation().getFirst(),
                         map,
                         Paths.get(pairs.getSecond() + "/" + StringUtil.capitalize(project.getName()) + ".java")
                 );
+                */
             }
 
             generateOtherClasses(project.getOtherClasses(), pairs.getSecond());
             Writer.writePomXml(pairs.getFirst() + File.separator + "pom.xml", project.getPom());
         }
+    }
+
+    private String getFunctionProvider(String functionName) {
+        return Main.configuration.getConfigurationForFunction(functionName).getProvider().toString().toLowerCase();
+    }
+
+    protected String generateHttpString(String className, String imports, String fields, String functionName, String requestType, String returnType, String params, String parameterType, String dummyClass, String body) {
+        Map<String, String> values = new HashMap<>();
+        values.put("CLASS_NAME", className);
+        values.put("IMPORTS", imports);
+        values.put("FIELDS", fields);
+        values.put("FUNCTION_NAME", functionName);
+        values.put("REQUEST_TYPE", requestType);
+        values.put("PARAMETER_TYPE", parameterType);
+        values.put("RETURN_TYPE", returnType);
+        values.put("PARAMETER", params);
+        values.put("DUMMY_CLASS", dummyClass);
+        values.put("BODY", body);
+
+        return generateFileContent("templates/serverless/" + getFunctionProvider(functionName) + "/HttpClassTemplate.txt", values);
+    }
+
+    protected String generateCronString(String className, String imports, String fields, String cronString, String body) {
+        Map<String, String> values = new HashMap<>();
+        values.put("CLASS_NAME", className);
+        values.put("IMPORTS", imports);
+        values.put("FIELDS", fields);
+        values.put("FUNCTION_NAME", StringUtil.firstCharToLowercase(className));
+        values.put("CRON_STRING", cronString);
+        values.put("BODY", body);
+
+        return generateFileContent("templates/serverless/" + getFunctionProvider(StringUtil.firstCharToLowercase(className)) + "/CronClassTemplate.txt", values);
+    }
+
+    protected String generateRabbitMqString(String className, String imports, String fields, String exchangeName, String parameter, String body) {
+        Map<String, String> values = new HashMap<>();
+        values.put("CLASS_NAME", className);
+        values.put("IMPORTS", imports);
+        values.put("FIELDS", fields);
+        values.put("FUNCTION_NAME", StringUtil.firstCharToLowercase(className));
+        values.put("PARAMETER", parameter);
+        values.put("EXCHANGE_NAME", exchangeName);
+        values.put("BODY", body);
+
+        return generateFileContent("templates/serverless/" + getFunctionProvider(StringUtil.firstCharToLowercase(className)) + "/EventClassTemplate.txt", values);
+    }
+
+    private void generateConfiguration(List<OtherClass> otherClasses, String packagePath) {
+        String packageString = "package com.example;\n\n";
+        StringBuilder importsString =
+                new StringBuilder("import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.ComponentScan;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n");
+
+        for (OtherClass clazz : otherClasses) {
+            if (clazz.getContent().contains("Service") || clazz.getContent().contains("Component")) {
+                importsString.append("import ").append(clazz.getPackageName().replace(Main.configuration.getBase_package(), "com.example")).append(".").append(clazz.getClassName()).append(";\n");
+            }
+        }
+
+        String annotationsString = "@Configuration\n@ComponentScan(basePackages = \"com.example\")\n";
+        String clazzName = "public class SpringFunctionConfiguration {\n";
+
+        StringBuilder beans = new StringBuilder();
+
+        for (OtherClass clazz : otherClasses) {
+            beans.append("@Bean\n");
+            beans.append("public ").append(clazz.getClassName()).append(" ").append(StringUtil.firstCharToLowercase(clazz.getClassName())).append("() {\n");
+            beans.append("return new ").append(clazz.getClassName()).append("();\n}");
+        }
+
+
+        StringBuilder clazz = new StringBuilder();
+        clazz.append(packageString);
+        clazz.append(importsString);
+        clazz.append(annotationsString);
+        clazz.append(clazzName);
+        clazz.append(beans);
+        clazz.append("}");
+
+        Writer.writeStringToFile(clazz.toString(), Path.of(packagePath + "/SpringFunctionConfiguration.java"));
     }
 }

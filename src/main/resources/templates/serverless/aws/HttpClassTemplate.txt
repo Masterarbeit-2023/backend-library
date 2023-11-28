@@ -2,9 +2,14 @@ package com.example;
 
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.Context;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 {{IMPORTS}}
 
-public class {{CLASS_NAME}} extends RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
+public class {{CLASS_NAME}} implements RequestHandler<{{PARAMETER_TYPE}}, {{RETURN_TYPE}}> {
+
+    private static final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringFunctionConfiguration.class);
 
     {{DUMMY_CLASS}}
 

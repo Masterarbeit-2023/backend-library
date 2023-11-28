@@ -5,7 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 {{IMPORTS}}
 
-public class {{CLASS_NAME}} implements RequestHandler<SQSEvent, Void> {
+public class {{CLASS_NAME}} implements RequestHandler<SQSEvent, String> {
 
     {{FIELDS}}
 

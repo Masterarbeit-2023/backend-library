@@ -3,9 +3,13 @@ package com.example;
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 {{IMPORTS}}
 
 public class {{CLASS_NAME}} implements HttpFunction {
+
+    private static final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringFunctionConfiguration.class);
 
     {{FIELDS}}
 

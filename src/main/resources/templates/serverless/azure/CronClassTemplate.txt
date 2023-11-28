@@ -13,7 +13,5 @@ public class {{CLASS_NAME}} {
     public void {{FUNCTION_NAME}}(
       @TimerTrigger(name = "{{FUNCTION_NAME}}", schedule = {{CRON_STRING}}) String timerInfo,
           ExecutionContext context
-     ) {
-         {{BODY}}
-    }
+     ) {{BODY}}
 }

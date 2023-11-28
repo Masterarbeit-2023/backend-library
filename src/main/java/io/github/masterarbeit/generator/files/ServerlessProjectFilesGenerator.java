@@ -3,7 +3,10 @@ package io.github.masterarbeit.generator.files;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -38,8 +41,9 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                 String parameterType = "";
                 String tmpClass = "";
                 method.setClazz(clazz);
-                BlockStmt body = clazz.getMethods().get(0).getBody();
+                BlockStmt body = method.getBody();
                 String bodyString = "";
+                ProviderEnum provider = Main.configuration.getConfigurationForFunction(method.getName()).getProvider();
 
                 Dependency springContextDependency = new Dependency();
                 springContextDependency.setGroupId("org.springframework");
@@ -47,9 +51,13 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                 springContextDependency.setVersion("6.0.12");
                 project.getPom().addDependency(springContextDependency);
 
-                switch (Main.configuration.getConfigurationForFunction(method.getName()).getProvider()) {
+                switch (provider) {
                     case AWS -> {
-
+                        Dependency azureDependency = new Dependency();
+                        azureDependency.setGroupId("com.amazonaws");
+                        azureDependency.setArtifactId("aws-lambda-java-core");
+                        azureDependency.setVersion("1.1.0");
+                        project.getPom().addDependency(azureDependency);
                     }
                     case AZURE -> {
                         Dependency azureDependency = new Dependency();
@@ -82,28 +90,41 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                     }
 
 
-                    switch (Main.configuration.getConfigurationForFunction(method.getName()).getProvider()) {
+                    switch (provider) {
                         case AWS -> {
                             if (params.size() + apiParams.size() > 1 || params.isEmpty() && apiParams.isEmpty()) {
                                 paramTypeString = clazz.getName() + ".DummyClass";
-                                dummyClassStringBuilder.append("class DummyClass {\n");
+                                dummyClassStringBuilder.append("public class DummyClass {\n");
+
                                 for (ParameterDeclaration p : params) {
                                     dummyClassStringBuilder.append(p.getType()).append(" ").append(p.getName()).append(";\n");
+                                    fieldStringInsideBody.append(p.getType()).append(" ").append(p.getName()).append(" = ").append("dummy.").append(p.getName()).append(";\n");
                                 }
                                 for (ParameterDeclaration p : apiParams) {
                                     dummyClassStringBuilder.append(p.getType()).append(" ").append(p.getName()).append(";\n");
+
+                                    fieldStringInsideBody.append(p.getType()).append(" ").append(p.getName()).append(" = ").append("dummy.").append(p.getName()).append(";\n");
                                 }
                                 dummyClassStringBuilder.append("}");
                                 paramString = "DummyClass dummy";
+
+                                bodyString = body.toString();
+
                             } else if (params.size() == 1) {
                                 paramTypeString = params.get(0).getType();
                                 paramString = params.get(0).getType() + " " + params.get(0).getName();
+                            }
+                            if (method.getReturnType().equals("void")) {
+                                method.setReturnType("String");
+                                bodyString = StringUtil.removeLastChar(body.toString());
+                                bodyString += "\n";
+                                bodyString += "return \"\";\n}";
                             }
 
                         }
                         case AZURE -> {
                             paramTypeString = !params.isEmpty() ? params.get(0).getType() : "DummyClass";
-                            dummyClassStringBuilder = new StringBuilder("class DummyClass {}");
+                            dummyClassStringBuilder = new StringBuilder("public class DummyClass {}");
                             for (ParameterDeclaration p : apiParams) {
                                 MethodCallExpr getOrDefaultCall = new MethodCallExpr(
                                         new MethodCallExpr(new NameExpr("request"), "getQueryParameters"),
@@ -127,10 +148,22 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                                 }
                                 body = block;
                             }
-                            bodyString = StringUtil.removeLastChar(body.toString());
-                            bodyString += "\n";
+                            bodyString = body.toString();
                             if (method.getReturnType().equals("void")) {
+                                bodyString = StringUtil.removeLastChar(body.toString());
+                                bodyString += "\n";
                                 bodyString += "return request.createResponseBuilder(HttpStatus.OK).build();\n}";
+                            } else {
+                                bodyString = "";
+                                for (String line : body.toString().split("\n")) {
+                                    if (line.contains("return")) {
+                                        bodyString += "return request.createResponseBuilder(HttpStatus.OK).body(" +
+                                                line.replace("return", "").replace(";", "")
+                                                + ").build();\n";
+                                    } else {
+                                        bodyString += line + "\n";
+                                    }
+                                }
                             }
                         }
                     }
@@ -150,94 +183,40 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
                             dummyClassStringBuilder.toString(),
                             bodyString
                     );
-                    map.put("HTTP_METHOD", ((HttpMethodDeclaration) method).getRequestType().toString());
-                    map.put("RETURN_TYPE", method.getReturnType());
-                    List<ParameterDeclaration> paramDecl = method.getParameters().stream().filter(value -> !value.isPathVariable()).toList();
-                    if (paramDecl.size() == 1) {
-                        parameterType = paramDecl.get(0).getType();
-                    }
-                    StringBuilder parameterTypes = new StringBuilder();
-                    for (ParameterDeclaration parameterDecl : method.getParameters()) {
-                        if (!parameterDecl.getAnnotation().contains("ApiPathVariable")) {
-                            if (!parameters.toString().isBlank()) {
-                                parameters.append(", ");
-                            }
-                            parameters.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName());
-                            if (configuration.getProvider().equals(ProviderEnum.AWS) && method.getParameters().size() >= 2) {
-                                FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(new NameExpr("tmpClass"), parameterDecl.getName());
-                                VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
-                                        new VariableDeclarator(
-                                                new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
-                                                parameterDecl.getName(),
-                                                fieldAccessExpr
-                                        )
-                                );
-                                BlockStmt block = new BlockStmt();
-                                block.addStatement(new ExpressionStmt(varDecl));
-                                for (Statement stmt : body.getStatements()) {
-                                    block.addStatement(stmt);
-                                }
-                                body = block;
-                            }
-                        } else {
-                            if (configuration.getProvider().equals(ProviderEnum.AZURE)) {
-                                MethodCallExpr getOrDefaultCall = new MethodCallExpr(
-                                        new MethodCallExpr(new NameExpr("request"), "getQueryParameters"),
-                                        "getOrDefault",
-                                        new NodeList<>(
-                                                new NameExpr("\"" + parameterDecl.getName() + "\""),
-                                                new StringLiteralExpr("")
-                                        )
-                                );
-                                VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
-                                        new VariableDeclarator(
-                                                new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
-                                                parameterDecl.getName(),
-                                                getOrDefaultCall
-                                        )
-                                );
-                                BlockStmt block = new BlockStmt();
-                                block.addStatement(new ExpressionStmt(varDecl));
-                                for (Statement stmt : body.getStatements()) {
-                                    block.addStatement(stmt);
-                                }
-                                body = block;
-                            } else if (configuration.getProvider().equals(ProviderEnum.AWS)) {
-                                parameterTypes.append(parameterDecl.getType()).append(" ").append(parameterDecl.getName()).append(";\n");
-                                FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(new NameExpr("tmpClass"), parameterDecl.getName());
-                                VariableDeclarationExpr varDecl = new VariableDeclarationExpr(
-                                        new VariableDeclarator(
-                                                new JavaParser().parseType(parameterDecl.getType()).getResult().get(),
-                                                parameterDecl.getName(),
-                                                fieldAccessExpr
-                                        )
-                                );
-                                BlockStmt block = new BlockStmt();
-                                block.addStatement(new ExpressionStmt(varDecl));
-                                for (Statement stmt : body.getStatements()) {
-                                    block.addStatement(stmt);
-                                }
-                                body = block;
-                            }
-                        }
-                    }
-                    tmpClass = "private class TmpClass {\n" + parameterTypes + parameterType + " " + StringUtil.firstCharToLowercase(parameterType) + ";\n}";
                 }
 
                 if (method instanceof TimerMethodDeclaration) {
-
+                    if (provider == ProviderEnum.AWS) {
+                        bodyString = StringUtil.removeFirstChar(StringUtil.removeLastChar(method.getBody().toString()));
+                    } else {
+                        bodyString = body.toString();
+                    }
                     fileContent = generateCronString(
                             clazz.getName(),
                             importsToString(clazz.getImports()),
                             fieldsToString(clazz.getFields()),
                             ((TimerMethodDeclaration) method).getCron(),
-                            method.getBody().toString()
+                            bodyString
                     );
                 }
                 if (method instanceof RabbitMqMethodDeclaration) {
                     map.put("CONNECTION_STRING_SETTING", "");
                     map.put("QUEUE", ((RabbitMqMethodDeclaration) method).getTopicName());
                     map.put("SCHEDULE", ((RabbitMqMethodDeclaration) method).getMessage());
+                    if (provider == ProviderEnum.AWS) {
+                        bodyString = StringUtil.removeFirstChar(StringUtil.removeLastChar(method.getBody().toString()));
+                    } else {
+                        bodyString = body.toString();
+                    }
+                    fileContent = generateRabbitMqString(
+                            clazz.getName(),
+                            importsToString(clazz.getImports()),
+                            fieldsToString(clazz.getFields()),
+                            "EXCHANGE_NAME",
+                            ((RabbitMqMethodDeclaration) method).getTopicName(),
+                            "CONNECTION_STRING",
+                            bodyString
+                    );
                 }
                 Pair<RequestType, Annotation> pair = Main.project.getRequestTypeAndAnnotationByMethodName(clazz.getName());
                 if (!tmpClass.isBlank()) {
@@ -307,14 +286,15 @@ public class ServerlessProjectFilesGenerator extends ProjectFileGenerator {
         return generateFileContent("templates/serverless/" + getFunctionProvider(StringUtil.firstCharToLowercase(className)) + "/CronClassTemplate.txt", values);
     }
 
-    protected String generateRabbitMqString(String className, String imports, String fields, String exchangeName, String parameter, String body) {
+    protected String generateRabbitMqString(String className, String imports, String fields, String exchangeName, String queue, String connectionString, String body) {
         Map<String, String> values = new HashMap<>();
         values.put("CLASS_NAME", className);
         values.put("IMPORTS", imports);
         values.put("FIELDS", fields);
         values.put("FUNCTION_NAME", StringUtil.firstCharToLowercase(className));
-        values.put("PARAMETER", parameter);
+        values.put("QUEUE", queue);
         values.put("EXCHANGE_NAME", exchangeName);
+        values.put("CONNECTION_STRING_SETTING", connectionString);
         values.put("BODY", body);
 
         return generateFileContent("templates/serverless/" + getFunctionProvider(StringUtil.firstCharToLowercase(className)) + "/EventClassTemplate.txt", values);

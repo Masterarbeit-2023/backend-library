@@ -13,8 +13,6 @@ public class {{CLASS_NAME}} {
     public void {{FUNCTION_NAME}}(
         @RabbitMQTrigger(connectionStringSetting = "{{CONNECTION_STRING_SETTING}}", queueName = "{{QUEUE}}") String input,
         final ExecutionContext context)
-    {
-        {{BODY}}
-    }
+    {{BODY}}
 
 }

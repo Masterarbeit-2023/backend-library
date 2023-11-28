@@ -9,9 +9,8 @@ public class {{CLASS_NAME}} implements BackgroundFunction<PubSubMessage> {
     {{FIELDS}}
 
     @Override
-      public void accept(PubSubMessage message, Context context) {
-        {{BODY}}
-      }
+      public void accept(PubSubMessage message, Context context)
+      {{BODY}}
 
       public static class PubSubMessage {
         String data;
